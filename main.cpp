@@ -19,6 +19,7 @@ class Macierz
 		double uzyskaj_wartosc(int n, int m);
 		void zmien_wartosc(int n, int m, double liczba);
 		void mnozenie_liczba(int k);
+		void wypisz_macierz();
 };
 
 
@@ -33,7 +34,7 @@ Macierz::Macierz(int n, int m)
 		tablica[i] = new double [kol];
 	}
 	
-	for (int i = 0; i < kol; i++)	//zape³nianie macierzy zerami
+	for (int i = 0; i < kol; i++)	//zapeÂ³nianie macierzy zerami
 	{
 		for (int j = 0; j < wier; j++)
 		{
@@ -74,7 +75,21 @@ void Macierz::mnozenie_liczba(int liczba)
 	}
 }
 
-
+void Macierz::wypisz_macierz()
+{
+	for (int i = 0; i < kol; i++)
+	{
+		cout << char(179);
+		for (int j = 0; j < wier; j++)
+		{
+			cout << tablica[i][j];
+			if(j != wier - 1)
+				cout << " ";
+		}
+		cout << char(179) << endl;
+	}
+	cout << endl;
+}
 
 
 
@@ -112,7 +127,7 @@ void mnozenie_macierzy(Macierz macierz1, Macierz macierz2)
 double calkowanie_trapezy(Macierz funkcja)
 {
 	double wynik;
-	double h = 0.0001; //d³ugosc kroku
+	double h = 0.0001; //dÂ³ugosc kroku
 	for (int i = 1; i < funkcja.szerokosc(); i++)
 	{
 		wynik += (funkcja.uzyskaj_wartosc(i-1,0) + funkcja.uzyskaj_wartosc(i,0)) * h / 2;
@@ -123,7 +138,8 @@ double calkowanie_trapezy(Macierz funkcja)
 int main(int argc, char** argv) {
 	Macierz x(3, 3);
 	x.zmien_wartosc(1,2,5);
-	cout << x.uzyskaj_wartosc(1,0) << " " << x.uzyskaj_wartosc(1,1) << " " << x.uzyskaj_wartosc(1,2) << endl;
+	x.wypisz_macierz();
+	
 	
 	system("pause");
 	return 0;
