@@ -60,12 +60,12 @@ void CreateInputWindow(int typ);
 double IsNumber(LPSTR text1);
 LPSTR GetValue(double liczba, char typ);
 double GetMaxAmp(double liczba);
+LPSTR GetAmpValue(double liczba);
 int GetCoord(double liczba, double kratka);
 void DrawGraph(double sygnal[], double max_amp, int numer);
 void Rozdzielacz(int szerokosc, int y, int kolor);
 
 void DrawTest();
-#define ID_test 200
 
 HINSTANCE hInstance;
 
@@ -158,7 +158,7 @@ int WINAPI WinMain(HINSTANCE hInstance = hInstance, HINSTANCE hPrevInstance, LPS
 
 //----------------------------Funkcje obslugi komunikatow------------------------------
 
-//-------Funkjca okna gÅ‚Ã³wnego-------------
+//-------Funkjca okna g³ównego-------------
 /* This is where all the input to the window goes to */
 LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) {
 	switch(Message) {
@@ -169,7 +169,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			break;
 		}
 		
-		//--------Ustawianie bitmapy jako tÅ‚o--------------
+		//--------Ustawianie bitmapy jako t³o--------------
 		case WM_PAINT: {
 			HBITMAP hbmObraz;
 			hbmObraz =( HBITMAP ) LoadImage( NULL, "obwod.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE );
@@ -239,7 +239,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 				hwnd, ( HMENU ) NULL, hInstance, NULL );
 				
 			SendMessage( U_combo, CB_ADDSTRING, 0,( LPARAM ) "Skok" );
-			SendMessage( U_combo, CB_ADDSTRING, 0,( LPARAM ) "Fala ProstokÄ…tna" );
+			SendMessage( U_combo, CB_ADDSTRING, 0,( LPARAM ) "Fala Prostok¹tna" );
 			SendMessage( U_combo, CB_ADDSTRING, 0,( LPARAM ) "Sinusoida" );
 			SendMessage(U_combo, CB_SETCURSEL, 0, (LPARAM) 0);
 			
@@ -262,7 +262,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			SetWindowText( Freq_value, (LPSTR) "---" );
 			
 			//------------Przebiegi------------------
-			Okno_button = CreateWindowEx(0, "BUTTON", "Rysuj przebiegi sygnaÅ‚Ã³w", WS_CHILD | WS_VISIBLE,
+			Okno_button = CreateWindowEx(0, "BUTTON", "Rysuj przebiegi sygna³ów", WS_CHILD | WS_VISIBLE,
 				50,
 				450,
 				200,
@@ -384,7 +384,7 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 			break;
 		}
 		
-		//-----------------Ustawianie tÅ‚a-----------------------
+		//-----------------Ustawianie t³a-----------------------
 		case WM_PAINT: {
 			HBITMAP hbmObraz1;
 			hbmObraz1 =( HBITMAP ) LoadImage( NULL, "wykres_x1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE );
@@ -449,8 +449,7 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 				811, /* y */
 				81, /* width */
 				20, /* height */
-				hwnd2, ( HMENU ) NULL, hInstance, NULL );
-			
+				hwnd2, ( HMENU ) NULL, hInstance, NULL );			
 			break;
 		}
 	
@@ -458,10 +457,6 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 		{
 			switch (wParam)
 			{
-				case ID_test:{
-					DrawTest();
-					break;
-				}
 			}
 		}
 		
@@ -538,6 +533,14 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 		}
 		break;	
 		/* All other messages (a lot of them) are processed using default procedures */
+		
+		//Jesli wykryta zostanie zmiana wartosci (R1, R2, C1, C2, sygnal_typ, sygnal_amp, sygnal_freq)
+		//to wykresy sa aktualizowane automatycznie
+		if(zmiana)
+		{
+			DrawTest();
+		}
+		
 		default:
 			return DefWindowProc(hwnd2, Message, wParam, lParam);
 	}
@@ -553,12 +556,12 @@ LRESULT CALLBACK WndProcInput(HWND hwnd3, UINT Message, WPARAM wParam, LPARAM lP
 			break;
 		}
 		
-		//---Wybor treÅ›ci kontrolek w zaleÅ¼noÅ›ci od naciÅ›niÄ™tego przycisku w oknie gÅ‚Ã³wnym---
+		//---Wybor treœci kontrolek w zale¿noœci od naciœniêtego przycisku w oknie g³ównym---
 		case WM_CREATE: {
 			switch(input_typ)
 			{
 				case 1:{
-					Input_static = CreateWindowEx( 0, "STATIC", "ZmieÅ„ wartoÅ›Ä‡ rezystancji R1", WS_CHILD | WS_VISIBLE | SS_CENTER,
+					Input_static = CreateWindowEx( 0, "STATIC", "Zmieñ wartoœæ rezystancji R1", WS_CHILD | WS_VISIBLE | SS_CENTER,
 					50, /* x */
 					20, /* y */
 					300, /* width */
@@ -577,7 +580,7 @@ LRESULT CALLBACK WndProcInput(HWND hwnd3, UINT Message, WPARAM wParam, LPARAM lP
 					break;
 				}
 				case 2:{
-					Input_static = CreateWindowEx( 0, "STATIC", "ZmieÅ„ wartoÅ›Ä‡ rezystancji R2", WS_CHILD | WS_VISIBLE | SS_CENTER,
+					Input_static = CreateWindowEx( 0, "STATIC", "Zmieñ wartoœæ rezystancji R2", WS_CHILD | WS_VISIBLE | SS_CENTER,
 					50, /* x */
 					20, /* y */
 					300, /* width */
@@ -597,7 +600,7 @@ LRESULT CALLBACK WndProcInput(HWND hwnd3, UINT Message, WPARAM wParam, LPARAM lP
 					break;
 				}
 				case 3:{
-					Input_static = CreateWindowEx( 0, "STATIC", "ZmieÅ„ wartoÅ›Ä‡ pojemnoÅ›ci C1", WS_CHILD | WS_VISIBLE | SS_CENTER,
+					Input_static = CreateWindowEx( 0, "STATIC", "Zmieñ wartoœæ pojemnoœci C1", WS_CHILD | WS_VISIBLE | SS_CENTER,
 					50, /* x */
 					20, /* y */
 					300, /* width */
@@ -615,7 +618,7 @@ LRESULT CALLBACK WndProcInput(HWND hwnd3, UINT Message, WPARAM wParam, LPARAM lP
 					break;
 				}
 				case 4:{
-					Input_static = CreateWindowEx( 0, "STATIC", "ZmieÅ„ wartoÅ›Ä‡ pojemnoÅ›ci C2", WS_CHILD | WS_VISIBLE | SS_CENTER,
+					Input_static = CreateWindowEx( 0, "STATIC", "Zmieñ wartoœæ pojemnoœci C2", WS_CHILD | WS_VISIBLE | SS_CENTER,
 					50, /* x */
 					20, /* y */
 					300, /* width */
@@ -633,7 +636,7 @@ LRESULT CALLBACK WndProcInput(HWND hwnd3, UINT Message, WPARAM wParam, LPARAM lP
 					break;
 				}
 				case 5:{
-					Input_static = CreateWindowEx( 0, "STATIC", "ZmieÅ„ wartoÅ›Ä‡ amplitudy sygnaÅ‚u", WS_CHILD | WS_VISIBLE | SS_CENTER,
+					Input_static = CreateWindowEx( 0, "STATIC", "Zmieñ wartoœæ amplitudy sygna³u", WS_CHILD | WS_VISIBLE | SS_CENTER,
 					50, /* x */
 					20, /* y */
 					300, /* width */
@@ -651,7 +654,7 @@ LRESULT CALLBACK WndProcInput(HWND hwnd3, UINT Message, WPARAM wParam, LPARAM lP
 					break;
 				}
 				case 6:{
-					Input_static = CreateWindowEx( 0, "STATIC", "ZmieÅ„ wartoÅ›Ä‡ czÄ™stotliwoÅ›ci sygnaÅ‚u", WS_CHILD | WS_VISIBLE | SS_CENTER,
+					Input_static = CreateWindowEx( 0, "STATIC", "Zmieñ wartoœæ czêstotliwoœci sygna³u", WS_CHILD | WS_VISIBLE | SS_CENTER,
 					50, /* x */
 					20, /* y */
 					300, /* width */
@@ -724,7 +727,7 @@ LRESULT CALLBACK WndProcInput(HWND hwnd3, UINT Message, WPARAM wParam, LPARAM lP
 						DestroyWindow(hwnd3);
 					}
 					else
-						MessageBox( hwnd, "Podaj liczbÄ™ z zakresu <1e-12; 1e15>", NULL, MB_ICONINFORMATION );
+						MessageBox( hwnd, "Podaj liczbê z zakresu <1e-12; 1e15>", NULL, MB_ICONINFORMATION );
 					switch(input_typ)
 					{
 						case 1:
@@ -758,13 +761,6 @@ LRESULT CALLBACK WndProcInput(HWND hwnd3, UINT Message, WPARAM wParam, LPARAM lP
 		/* All other messages (a lot of them) are processed using default procedures */
 		default:
 			return DefWindowProc(hwnd3, Message, wParam, lParam);
-	}
-	
-	//Jesli wykryta zostanie zmiana wartosci (R1, R2, C1, C2, sygnal_typ, sygnal_amp, sygnal_freq)
-	//to wykresy sa aktualizowane automatycznie
-	if(zmiana)
-	{
-		DrawTest();
 	}
 	
 	return 0;
@@ -866,7 +862,7 @@ double IsNumber(LPSTR text1)
 }
 
 //Funkcja zamieniajaca liczbe double na typ LPSTR, ktory mozna wyswietlac w kontrolkach
-//Liczba wyÅ›wietlana jest z zakresu <1;999> z dodatkowym przedrostkiem, jesli jest potrzebny
+//Liczba wyœwietlana jest z zakresu <1;999> z dodatkowym przedrostkiem, jesli jest potrzebny
 //Obsluguje liczby z zakresy <1e-12;1e15>
 LPSTR GetValue(double liczba, char typ)
 {
@@ -1011,59 +1007,37 @@ LPSTR GetValue(double liczba, char typ)
 //Funkcja uzywana do poprawy wizualizacji wartosci maksymalnej amplitudy
 double GetMaxAmp(double liczba)
 {
-	if(liczba >= 1e-12 && liczba < 1e-9)
-	{
-		liczba *= 1e12;
-		liczba = ceil(liczba);
-		liczba /= 1e12;
-	}
-	if(liczba >= 1e-9 && liczba < 1e-6)
-	{
-		liczba *= 1e9;
-		liczba = ceil(liczba);
-		liczba /= 1e9;
-	}
-	if(liczba >= 1e-6 && liczba < 1e-3)
-	{
-		liczba *= 1e6;
-		liczba = ceil(liczba);
-		liczba /= 1e6;
-	}
-	if(liczba >= 1e-3 && liczba < 1)
-	{
-		liczba *= 1e3;
-		liczba = ceil(liczba);
-		liczba /= 1e3;
-	}
-	if(liczba >= 1 && liczba < 1e3)
-	{
-		liczba = ceil(liczba);
-	}
-	if(liczba >= 1e3 && liczba < 1e6)
-	{
-		liczba *= 1e-3;
-		liczba = ceil(liczba);
-		liczba /= 1e-3;
-	}
-	if(liczba >= 1e6 && liczba < 1e9)
-	{
-		liczba *= 1e-6;
-		liczba = ceil(liczba);
-		liczba /= 1e-6;
-	}
-	if(liczba >= 1e9 && liczba < 1e12)
-	{
-		liczba *= 1e-9;
-		liczba = ceil(liczba);
-		liczba /= 1e-9;
-	}
-	if(liczba >= 1e12 && liczba < 1e15)
-	{
-		liczba *= 1e-12;
-		liczba = ceil(liczba);
-		liczba /= 1e-12;
+	for(double i = -60; i < 60; i += 3)
+	{	
+		if(liczba >= pow(10, i) && liczba < pow(10, i + 3))
+		{
+			liczba *= pow(10, -i);
+			liczba = ceil(liczba);
+			liczba /= pow(10, -i);
+		}
 	}
 	return liczba;
+}
+
+LPSTR GetAmpValue(double liczba)
+{
+	string napis;
+	ostringstream strs;
+	ostringstream strs1;
+	for(double i = -60; i < 60; i += 3)
+	{	
+		if(liczba >= pow(10, i) && liczba < pow(10, i + 3))
+		{
+			strs << liczba*pow(10, -i);
+			napis = strs.str() + "*10^";
+			strs1 << i;
+			napis += strs1.str();
+		}
+	}
+	napis += " V";	
+	
+	LPSTR wynik = &napis[0];
+	return wynik;
 }
 
 //Fukncja zwracajaca pixel, do ktorego rysowany bedzie wykres
@@ -1153,12 +1127,12 @@ void DrawTest()
 		}
 	}
 	max_amp1 = GetMaxAmp(max_amp1);
-	SetWindowText( max_amp_x1, GetValue(max_amp1, 'A') );
+	SetWindowText( max_amp_x1, GetAmpValue(max_amp1) );
 	SetWindowText( period_x1, GetValue(1/sygnal_freq, 't') );
 	DrawGraph(X1, max_amp1, 1);
 	
 	max_amp2 = GetMaxAmp(max_amp2);
-	SetWindowText( max_amp_x2, GetValue(max_amp2, 'A') );
+	SetWindowText( max_amp_x2, GetAmpValue(max_amp2) );
 	SetWindowText( period_x2, GetValue(1/sygnal_freq, 't') );
 	DrawGraph(X2, max_amp2, 2);
 }
