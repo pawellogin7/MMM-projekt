@@ -432,7 +432,7 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 				
 			max_amp_x2 = CreateWindowEx( 0, "STATIC", NULL, WS_CHILD | WS_VISIBLE | SS_RIGHT,
 				18, /* x */
-				510, /* y */
+				545, /* y */
 				80, /* width */
 				20, /* height */
 				hwnd2, ( HMENU ) NULL, hInstance, NULL );
