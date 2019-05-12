@@ -15,14 +15,17 @@ HWND Amp_value;
 HWND Freq_value;
 HWND Okno_button;
 
+HWND max_amp_x1;
+HWND max_amp_x2;
+HWND period_x1;
+HWND period_x2;
+
 HWND Input_static;
 HWND Input_text;
 
 HWND hwnd;
 HWND hwnd2;
 HWND hwnd3;
-
-HWND scale_button;
 
 #define ID_R1 100
 #define ID_R2 101
@@ -31,7 +34,6 @@ HWND scale_button;
 #define ID_Amp 104
 #define ID_Freq 105
 #define ID_Okno 106
-#define PI 3.14159265
 
 double R1 = 1000;
 double R2 = 1000;
@@ -42,6 +44,8 @@ double sygnal_amp = 1;
 double sygnal_freq = 1;
 int granica = 1000;
 int input_typ;
+
+bool zmiana = false;
 
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
@@ -58,13 +62,15 @@ LPSTR GetValue(double liczba, char typ);
 double GetMaxAmp(double liczba);
 int GetCoord(double liczba, double kratka);
 void DrawGraph(double sygnal[], double max_amp, int numer);
-void Rozdzielacz();
+void Rozdzielacz(int szerokosc, int y, int kolor);
 
 void DrawTest();
 #define ID_test 200
 
-
 HINSTANCE hInstance;
+
+
+//-----------------------------------------WinMain-------------------------------------------------------
 
 /* The 'main' function of Win32 GUI programs: this is where execution starts */
 int WINAPI WinMain(HINSTANCE hInstance = hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
@@ -149,9 +155,10 @@ int WINAPI WinMain(HINSTANCE hInstance = hInstance, HINSTANCE hPrevInstance, LPS
 }
 
 
-//-------Funkcje obslugi komunikatow--------
 
-//-------Funkjca okna g³ównego-------------
+//----------------------------Funkcje obslugi komunikatow------------------------------
+
+//-------Funkjca okna gÅ‚Ã³wnego-------------
 /* This is where all the input to the window goes to */
 LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) {
 	switch(Message) {
@@ -162,7 +169,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			break;
 		}
 		
-		//--------Ustawianie bitmapy jako t³o--------------
+		//--------Ustawianie bitmapy jako tÅ‚o--------------
 		case WM_PAINT: {
 			HBITMAP hbmObraz;
 			hbmObraz =( HBITMAP ) LoadImage( NULL, "obwod.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE );
@@ -189,18 +196,18 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 		case WM_CREATE: {
 			//-----------------R1---------------------	
 			R1_value = CreateWindowEx( 0, "BUTTON", NULL, WS_CHILD | WS_VISIBLE | SS_CENTER,
-				263, /* x */
+				273, /* x */
 				110, /* y */
-				121, /* width */
+				100, /* width */
 				20, /* height */
 				hwnd, ( HMENU ) ID_R1, hInstance, NULL );	
 			SetWindowText( R1_value, GetValue(R1, 'R'));
 							
 			//----------------R2--------------------	
 			R2_value = CreateWindowEx( 0, "BUTTON", NULL, WS_CHILD | WS_VISIBLE | SS_CENTER,
-				633, /* x */
+				643, /* x */
 				110, /* y */
-				121, /* width */
+				100, /* width */
 				20, /* height */
 				hwnd, ( HMENU ) ID_R2, hInstance, NULL );		
 			SetWindowText( R2_value, GetValue(R2, 'R'));
@@ -232,7 +239,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 				hwnd, ( HMENU ) NULL, hInstance, NULL );
 				
 			SendMessage( U_combo, CB_ADDSTRING, 0,( LPARAM ) "Skok" );
-			SendMessage( U_combo, CB_ADDSTRING, 0,( LPARAM ) "Fala Prostok¹tna" );
+			SendMessage( U_combo, CB_ADDSTRING, 0,( LPARAM ) "Fala ProstokÄ…tna" );
 			SendMessage( U_combo, CB_ADDSTRING, 0,( LPARAM ) "Sinusoida" );
 			SendMessage(U_combo, CB_SETCURSEL, 0, (LPARAM) 0);
 			
@@ -255,7 +262,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			SetWindowText( Freq_value, (LPSTR) "---" );
 			
 			//------------Przebiegi------------------
-			Okno_button = CreateWindowEx(0, "BUTTON", "Rysuj przebiegi sygna³ów", WS_CHILD | WS_VISIBLE,
+			Okno_button = CreateWindowEx(0, "BUTTON", "Rysuj przebiegi sygnaÅ‚Ã³w", WS_CHILD | WS_VISIBLE,
 				50,
 				450,
 				200,
@@ -335,7 +342,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 						CW_USEDEFAULT, /* x */
 						CW_USEDEFAULT, /* y */
 						1200, /* width */
-						1050, /* height */
+						1070, /* height */
 						hwnd,NULL,hInstance,NULL);
 					if(hwnd2 == NULL) {
 						MessageBox(NULL, "Window Creation Failed!","Error!",MB_ICONEXCLAMATION|MB_OK);
@@ -348,7 +355,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					si.cbSize = sizeof( SCROLLINFO );
 					si.fMask = SIF_RANGE | SIF_PAGE | SIF_POS;
 					si.nMin = 0;
-					si.nMax = 1050;
+					si.nMax = 1070;
 					si.nPage = okno.bottom;
 					si.nPos = 0;
 					SetScrollInfo( hwnd2, SB_VERT, & si, TRUE );
@@ -370,14 +377,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 
 //-------Funkcja okna do rysowania przebiegow------------------
 LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lParam) {
-	switch(Message) {
+		switch(Message) {
 		/* Upon destruction, tell the main thread to stop */
 		case WM_DESTROY: {	
 			ShowWindow(hwnd2, SW_HIDE);
 			break;
 		}
 		
-		//-----------------Ustawianie t³a-----------------------
+		//-----------------Ustawianie tÅ‚a-----------------------
 		case WM_PAINT: {
 			HBITMAP hbmObraz1;
 			hbmObraz1 =( HBITMAP ) LoadImage( NULL, "wykres_x1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE );
@@ -402,24 +409,48 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 			
 			PAINTSTRUCT ps;
 			BeginPaint ( hwnd2, &ps );
-            BitBlt( hdc1, 100, 0, bmInfo1.bmWidth, bmInfo1.bmHeight, hdcNowy1, 0, 0, SRCCOPY );
-            BitBlt( hdc2, 100, 505, bmInfo2.bmWidth, bmInfo2.bmHeight, hdcNowy2, 0, 0, SRCCOPY );
+            BitBlt( hdc1, 100, 15, bmInfo1.bmWidth, bmInfo1.bmHeight, hdcNowy1, 0, 0, SRCCOPY );
+            BitBlt( hdc2, 100, 554, bmInfo2.bmWidth, bmInfo2.bmHeight, hdcNowy2, 0, 0, SRCCOPY );
             EndPaint( hwnd2, &ps );
 			
-			Rozdzielacz();
+			DrawTest();
 			
+			Rozdzielacz(8, 531, 0);
+			Rozdzielacz(2, 534, 2);	
 			DeleteDC(hdcNowy1);
 			DeleteDC(hdcNowy2);
 			break;
 		}
 		
-		case WM_CREATE: {					
-			scale_button = CreateWindowEx( 0, "BUTTON", "Rysuj", WS_CHILD | WS_VISIBLE,
-				10, /* x */
-				100, /* y */
+		case WM_CREATE: {									
+			max_amp_x1 = CreateWindowEx( 0, "STATIC", NULL, WS_CHILD | WS_VISIBLE | SS_RIGHT,
+				17, /* x */
+				5, /* y */
+				80, /* width */
+				21, /* height */
+				hwnd2, ( HMENU ) NULL, hInstance, NULL );	
+				
+			max_amp_x2 = CreateWindowEx( 0, "STATIC", NULL, WS_CHILD | WS_VISIBLE | SS_RIGHT,
+				18, /* x */
+				510, /* y */
 				80, /* width */
 				20, /* height */
-				hwnd2, ( HMENU ) ID_test, hInstance, NULL );
+				hwnd2, ( HMENU ) NULL, hInstance, NULL );
+				
+			period_x1 = CreateWindowEx( 0, "STATIC", NULL, WS_CHILD | WS_VISIBLE | SS_CENTER,
+				1060, /* x */
+				272, /* y */
+				81, /* width */
+				20, /* height */
+				hwnd2, ( HMENU ) NULL, hInstance, NULL );
+				
+			period_x2 = CreateWindowEx( 0, "STATIC", NULL, WS_CHILD | WS_VISIBLE | SS_CENTER,
+				1060, /* x */
+				811, /* y */
+				81, /* width */
+				20, /* height */
+				hwnd2, ( HMENU ) NULL, hInstance, NULL );
+			
 			break;
 		}
 	
@@ -433,6 +464,21 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 				}
 			}
 		}
+		
+		case WM_KEYDOWN:{
+			switch(wParam){
+				case VK_RETURN: {
+					DestroyWindow(hwnd2);
+					break;
+				}	
+				case VK_ESCAPE: {
+					DestroyWindow(hwnd2);
+					break;
+				}
+			}
+			break;
+		}
+			
 		
 		//----------Obsluga suwaka-------------
 		case WM_VSCROLL: {
@@ -448,7 +494,7 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 			        pozycja = 0;
 			        break;
 			    case SB_BOTTOM:
-			        pozycja = 1050;
+			        pozycja = 1070;
 			        break;
 			    case SB_LINEUP:
 			        if( pozycja > 0 ) {
@@ -456,7 +502,7 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 			        }
 			        break;
 			    case SB_LINEDOWN:
-			        if( pozycja < 1050 ) {
+			        if( pozycja < 1070 ) {
 			            pozycja++;
 			        }
 			        break;
@@ -468,8 +514,8 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 			        break;
 			    case SB_PAGEDOWN:
 			        pozycja += si.nPage;
-			        if( pozycja > 1050 ) {
-			            pozycja = 1050;
+			        if( pozycja > 1070 ) {
+			            pozycja = 1070;
 			        }
 			        break;
 			    case SB_THUMBPOSITION:
@@ -507,12 +553,12 @@ LRESULT CALLBACK WndProcInput(HWND hwnd3, UINT Message, WPARAM wParam, LPARAM lP
 			break;
 		}
 		
-		//---Wybor treœci kontrolek w zale¿noœci od naciœniêtego przycisku w oknie g³ównym---
+		//---Wybor treÅ›ci kontrolek w zaleÅ¼noÅ›ci od naciÅ›niÄ™tego przycisku w oknie gÅ‚Ã³wnym---
 		case WM_CREATE: {
 			switch(input_typ)
 			{
 				case 1:{
-					Input_static = CreateWindowEx( 0, "STATIC", "Zmieñ wartoœæ rezystancji R1", WS_CHILD | WS_VISIBLE | SS_CENTER,
+					Input_static = CreateWindowEx( 0, "STATIC", "ZmieÅ„ wartoÅ›Ä‡ rezystancji R1", WS_CHILD | WS_VISIBLE | SS_CENTER,
 					50, /* x */
 					20, /* y */
 					300, /* width */
@@ -531,7 +577,7 @@ LRESULT CALLBACK WndProcInput(HWND hwnd3, UINT Message, WPARAM wParam, LPARAM lP
 					break;
 				}
 				case 2:{
-					Input_static = CreateWindowEx( 0, "STATIC", "Zmieñ wartoœæ rezystancji R2", WS_CHILD | WS_VISIBLE | SS_CENTER,
+					Input_static = CreateWindowEx( 0, "STATIC", "ZmieÅ„ wartoÅ›Ä‡ rezystancji R2", WS_CHILD | WS_VISIBLE | SS_CENTER,
 					50, /* x */
 					20, /* y */
 					300, /* width */
@@ -551,7 +597,7 @@ LRESULT CALLBACK WndProcInput(HWND hwnd3, UINT Message, WPARAM wParam, LPARAM lP
 					break;
 				}
 				case 3:{
-					Input_static = CreateWindowEx( 0, "STATIC", "Zmieñ wartoœæ pojemnoœci C1", WS_CHILD | WS_VISIBLE | SS_CENTER,
+					Input_static = CreateWindowEx( 0, "STATIC", "ZmieÅ„ wartoÅ›Ä‡ pojemnoÅ›ci C1", WS_CHILD | WS_VISIBLE | SS_CENTER,
 					50, /* x */
 					20, /* y */
 					300, /* width */
@@ -569,7 +615,7 @@ LRESULT CALLBACK WndProcInput(HWND hwnd3, UINT Message, WPARAM wParam, LPARAM lP
 					break;
 				}
 				case 4:{
-					Input_static = CreateWindowEx( 0, "STATIC", "Zmieñ wartoœæ pojemnoœci C2", WS_CHILD | WS_VISIBLE | SS_CENTER,
+					Input_static = CreateWindowEx( 0, "STATIC", "ZmieÅ„ wartoÅ›Ä‡ pojemnoÅ›ci C2", WS_CHILD | WS_VISIBLE | SS_CENTER,
 					50, /* x */
 					20, /* y */
 					300, /* width */
@@ -587,7 +633,7 @@ LRESULT CALLBACK WndProcInput(HWND hwnd3, UINT Message, WPARAM wParam, LPARAM lP
 					break;
 				}
 				case 5:{
-					Input_static = CreateWindowEx( 0, "STATIC", "Zmieñ wartoœæ amplitudy sygna³u", WS_CHILD | WS_VISIBLE | SS_CENTER,
+					Input_static = CreateWindowEx( 0, "STATIC", "ZmieÅ„ wartoÅ›Ä‡ amplitudy sygnaÅ‚u", WS_CHILD | WS_VISIBLE | SS_CENTER,
 					50, /* x */
 					20, /* y */
 					300, /* width */
@@ -605,7 +651,7 @@ LRESULT CALLBACK WndProcInput(HWND hwnd3, UINT Message, WPARAM wParam, LPARAM lP
 					break;
 				}
 				case 6:{
-					Input_static = CreateWindowEx( 0, "STATIC", "Zmieñ wartoœæ czêstotliwoœci sygna³u", WS_CHILD | WS_VISIBLE | SS_CENTER,
+					Input_static = CreateWindowEx( 0, "STATIC", "ZmieÅ„ wartoÅ›Ä‡ czÄ™stotliwoÅ›ci sygnaÅ‚u", WS_CHILD | WS_VISIBLE | SS_CENTER,
 					50, /* x */
 					20, /* y */
 					300, /* width */
@@ -673,11 +719,12 @@ LRESULT CALLBACK WndProcInput(HWND hwnd3, UINT Message, WPARAM wParam, LPARAM lP
 								break;
 							}
 						}
+						zmiana = true;
 						GlobalFree( Bufor );
 						DestroyWindow(hwnd3);
 					}
 					else
-						MessageBox( hwnd, "Podaj liczbê", NULL, MB_ICONINFORMATION );
+						MessageBox( hwnd, "Podaj liczbÄ™ z zakresu <1e-12; 1e15>", NULL, MB_ICONINFORMATION );
 					switch(input_typ)
 					{
 						case 1:
@@ -712,6 +759,14 @@ LRESULT CALLBACK WndProcInput(HWND hwnd3, UINT Message, WPARAM wParam, LPARAM lP
 		default:
 			return DefWindowProc(hwnd3, Message, wParam, lParam);
 	}
+	
+	//Jesli wykryta zostanie zmiana wartosci (R1, R2, C1, C2, sygnal_typ, sygnal_amp, sygnal_freq)
+	//to wykresy sa aktualizowane automatycznie
+	if(zmiana)
+	{
+		DrawTest();
+	}
+	
 	return 0;
 }
 
@@ -739,7 +794,10 @@ LRESULT CALLBACK WndProcText( HWND hwnd, UINT Message, WPARAM wParam, LPARAM lPa
     return 0;
     
 }
-//---------Funkcje----------------
+
+
+
+//--------------------------Funkcje------------------------------
 
 //Funkcja tworzenia okna WndProcInput
 void CreateInputWindow(int typ)
@@ -808,7 +866,7 @@ double IsNumber(LPSTR text1)
 }
 
 //Funkcja zamieniajaca liczbe double na typ LPSTR, ktory mozna wyswietlac w kontrolkach
-//Liczba wyœwietlana jest z zakresu <1;999> z dodatkowym przedrostkiem, jesli jest potrzebny
+//Liczba wyÅ›wietlana jest z zakresu <1;999> z dodatkowym przedrostkiem, jesli jest potrzebny
 //Obsluguje liczby z zakresy <1e-12;1e15>
 LPSTR GetValue(double liczba, char typ)
 {
@@ -937,6 +995,11 @@ LPSTR GetValue(double liczba, char typ)
 			napis += "Hz";
 			break;
 		}
+		case 't':
+		{
+			napis += "s";
+			break;
+		}
 		case '-':
 			break;
 	}
@@ -1010,7 +1073,7 @@ int GetCoord(double liczba, double kratka)
 	return Coord;
 }
 
-//ju¿ nie xd
+//
 void DrawTest()
 {
 	double U[granica];
@@ -1055,7 +1118,7 @@ void DrawTest()
 		case 2:
 		{
 			for ( int i = 0 ; i < granica ; i++ ){
-				U[i] = sin((i*2*PI/1000));
+				U[i] = sin((i*2*M_PI/1000));
 			}
 			break;
 		}
@@ -1090,19 +1153,46 @@ void DrawTest()
 		}
 	}
 	max_amp1 = GetMaxAmp(max_amp1);
-	max_amp2 = GetMaxAmp(max_amp2);
+	SetWindowText( max_amp_x1, GetValue(max_amp1, 'A') );
+	SetWindowText( period_x1, GetValue(1/sygnal_freq, 't') );
 	DrawGraph(X1, max_amp1, 1);
+	
+	max_amp2 = GetMaxAmp(max_amp2);
+	SetWindowText( max_amp_x2, GetValue(max_amp2, 'A') );
+	SetWindowText( period_x2, GetValue(1/sygnal_freq, 't') );
 	DrawGraph(X2, max_amp2, 2);
 }
 
 //Funkcja rysujaca kreske rozdzilajaca w WndProcChild
-void Rozdzielacz()
+void Rozdzielacz(int szerokosc, int y, int kolor)
 {
 	HDC hdcOkno = GetDC(hwnd2);
 	POINT stary_punkt;
-	HPEN Pioro = CreatePen( PS_SOLID, 3, 0xFFFFFF );
-	MoveToEx(hdcOkno, 0, 502, &stary_punkt);
-	LineTo(hdcOkno, 1201, 502);
+	HPEN Pioro;
+	switch(kolor)
+	{
+		case 0:
+			Pioro = CreatePen( PS_SOLID, 1, 0x000000 );
+			break;
+		case 1:
+			Pioro = CreatePen( PS_SOLID, 1, 0x828282 );
+			break;
+		case 2:
+			Pioro = CreatePen( PS_SOLID, 1, 0xFF0000 );
+			break;
+		case 3:
+			Pioro = CreatePen( PS_SOLID, 1, 0x00FF00 );
+			break;
+		case 4:
+			Pioro = CreatePen( PS_SOLID, 1, 0x0000FF );
+			break;
+	}
+	SelectObject(hdcOkno, Pioro);
+	for(int i = 0; i < szerokosc; i++)
+	{
+		MoveToEx(hdcOkno, 0, y + i, &stary_punkt);
+		LineTo(hdcOkno, 1201, y + i);
+	}
 	DeleteObject(Pioro);
 	ReleaseDC(hwnd2, hdcOkno);
 }
@@ -1121,11 +1211,11 @@ void DrawGraph(double sygnal[], double max_amp, int numer)
 	switch(numer)
 	{
 		case 1:{
-			start_coord_y = 251;
+			start_coord_y = 266;
 			break;
 		}
 		case 2:{
-			start_coord_y = 756;
+			start_coord_y = 805;
 			break;
 		}
 	}
@@ -1138,6 +1228,7 @@ void DrawGraph(double sygnal[], double max_amp, int numer)
 		LineTo(hdcOkno, start_coord_x + i + 1, start_coord_y - coord_y);
 	}
 	
+	bool zmiana = false;
 	DeleteObject(NiebieskiePioro);
 	ReleaseDC(hwnd2, hdcOkno);
 }
