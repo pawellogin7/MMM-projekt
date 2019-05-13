@@ -13,13 +13,14 @@ HWND C2_value;
 HWND U_combo;
 HWND Amp_value;
 HWND Freq_value;
-HWND Okno_button;
-
+HWND Przebiegi_button;
+//hwnd2
 HWND max_amp_x1;
 HWND max_amp_x2;
-HWND period_x1;
-HWND period_x2;
-
+HWND time_x1;
+HWND time_x2;
+HWND simulation_time;
+//hwnd3
 HWND Input_static;
 HWND Input_text;
 
@@ -33,7 +34,8 @@ HWND hwnd3;
 #define ID_C2 103
 #define ID_Amp 104
 #define ID_Freq 105
-#define ID_Okno 106
+#define ID_Przebiegi 106
+#define ID_czas 107
 
 double R1 = 1000;
 double R2 = 1000;
@@ -42,7 +44,7 @@ double C2 = 0.1;
 int sygnal_typ = 0;
 double sygnal_amp = 1;
 double sygnal_freq = 1;
-int granica = 1000;
+double czas_symulacji = 1; //w sekundach
 int input_typ;
 
 bool zmiana = false;
@@ -172,7 +174,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 		//--------Ustawianie bitmapy jako t³o--------------
 		case WM_PAINT: {
 			HBITMAP hbmObraz;
-			hbmObraz =( HBITMAP ) LoadImage( NULL, "obwod.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE );
+			hbmObraz =( HBITMAP ) LoadImage( NULL, "pictures/obwod.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE );
 			HDC hdc = GetDC( hwnd );
 			HDC hdcNowy = CreateCompatibleDC( hdc );
 			SelectObject( hdcNowy, hbmObraz );
@@ -262,12 +264,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			SetWindowText( Freq_value, (LPSTR) "---" );
 			
 			//------------Przebiegi------------------
-			Okno_button = CreateWindowEx(0, "BUTTON", "Rysuj przebiegi sygna³ów", WS_CHILD | WS_VISIBLE,
+			Przebiegi_button = CreateWindowEx(0, "BUTTON", "Rysuj przebiegi sygna³ów", WS_CHILD | WS_VISIBLE,
 				50,
 				450,
 				200,
 				50,
-				hwnd, ( HMENU ) ID_Okno, hInstance, NULL );
+				hwnd, ( HMENU ) ID_Przebiegi, hInstance, NULL );
 			break;
 		}
 		
@@ -336,7 +338,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 				}				
 			    break;
 			    
-			    case ID_Okno: {
+			    case ID_Przebiegi: {
 					DestroyWindow(hwnd2);
 					hwnd2 = CreateWindowEx(WS_EX_CLIENTEDGE,"WindowClassChild","Caption",WS_POPUP|WS_OVERLAPPEDWINDOW|WS_VSCROLL,
 						CW_USEDEFAULT, /* x */
@@ -387,14 +389,14 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 		//-----------------Ustawianie t³a-----------------------
 		case WM_PAINT: {
 			HBITMAP hbmObraz1;
-			hbmObraz1 =( HBITMAP ) LoadImage( NULL, "wykres_x1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE );
+			hbmObraz1 =( HBITMAP ) LoadImage( NULL, "pictures/wykres_x1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE );
 			HDC hdc1 = GetDC( hwnd2 );
 			HDC hdcNowy1 = CreateCompatibleDC( hdc1 );
 			SelectObject( hdcNowy1, hbmObraz1 );
 			HBITMAP hbmOld =( HBITMAP ) SelectObject( hdcNowy1, hbmObraz1 );
 					
 			HBITMAP hbmObraz2;
-			hbmObraz2 =( HBITMAP ) LoadImage( NULL, "wykres_x2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE );
+			hbmObraz2 =( HBITMAP ) LoadImage( NULL, "pictures/wykres_x2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE );
 			HDC hdc2 = GetDC( hwnd2 );
 			HDC hdcNowy2 = CreateCompatibleDC( hdc2 );
 			SelectObject( hdcNowy2, hbmObraz2 );
@@ -437,19 +439,28 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 				20, /* height */
 				hwnd2, ( HMENU ) NULL, hInstance, NULL );
 				
-			period_x1 = CreateWindowEx( 0, "STATIC", NULL, WS_CHILD | WS_VISIBLE | SS_CENTER,
+			time_x1 = CreateWindowEx( 0, "STATIC", NULL, WS_CHILD | WS_VISIBLE | SS_CENTER,
 				1060, /* x */
 				272, /* y */
 				81, /* width */
 				20, /* height */
 				hwnd2, ( HMENU ) NULL, hInstance, NULL );
 				
-			period_x2 = CreateWindowEx( 0, "STATIC", NULL, WS_CHILD | WS_VISIBLE | SS_CENTER,
+			time_x2 = CreateWindowEx( 0, "STATIC", NULL, WS_CHILD | WS_VISIBLE | SS_CENTER,
 				1060, /* x */
 				811, /* y */
 				81, /* width */
 				20, /* height */
-				hwnd2, ( HMENU ) NULL, hInstance, NULL );			
+				hwnd2, ( HMENU ) NULL, hInstance, NULL );
+			
+			simulation_time = CreateWindowEx( 0, "BUTTON", NULL, WS_CHILD | WS_VISIBLE | SS_CENTER,
+				10, /* x */
+				256, /* y */
+				80, /* width */
+				20, /* height */
+				hwnd2, ( HMENU ) ID_czas, hInstance, NULL );	
+				
+					
 			break;
 		}
 	
@@ -457,6 +468,10 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 		{
 			switch (wParam)
 			{
+				case ID_czas: {	 
+					CreateInputWindow(7);
+				}	
+				break;
 			}
 		}
 		
@@ -561,7 +576,7 @@ LRESULT CALLBACK WndProcInput(HWND hwnd3, UINT Message, WPARAM wParam, LPARAM lP
 			switch(input_typ)
 			{
 				case 1:{
-					Input_static = CreateWindowEx( 0, "STATIC", "Zmieñ wartoœæ rezystancji R1", WS_CHILD | WS_VISIBLE | SS_CENTER,
+					Input_static = CreateWindowEx( 0, "STATIC", "Zmieñ rezystancjê R1", WS_CHILD | WS_VISIBLE | SS_CENTER,
 					50, /* x */
 					20, /* y */
 					300, /* width */
@@ -580,7 +595,7 @@ LRESULT CALLBACK WndProcInput(HWND hwnd3, UINT Message, WPARAM wParam, LPARAM lP
 					break;
 				}
 				case 2:{
-					Input_static = CreateWindowEx( 0, "STATIC", "Zmieñ wartoœæ rezystancji R2", WS_CHILD | WS_VISIBLE | SS_CENTER,
+					Input_static = CreateWindowEx( 0, "STATIC", "Zmieñ rezystancjê R2", WS_CHILD | WS_VISIBLE | SS_CENTER,
 					50, /* x */
 					20, /* y */
 					300, /* width */
@@ -600,7 +615,7 @@ LRESULT CALLBACK WndProcInput(HWND hwnd3, UINT Message, WPARAM wParam, LPARAM lP
 					break;
 				}
 				case 3:{
-					Input_static = CreateWindowEx( 0, "STATIC", "Zmieñ wartoœæ pojemnoœci C1", WS_CHILD | WS_VISIBLE | SS_CENTER,
+					Input_static = CreateWindowEx( 0, "STATIC", "Zmieñ pojemnoœæ C1", WS_CHILD | WS_VISIBLE | SS_CENTER,
 					50, /* x */
 					20, /* y */
 					300, /* width */
@@ -618,7 +633,7 @@ LRESULT CALLBACK WndProcInput(HWND hwnd3, UINT Message, WPARAM wParam, LPARAM lP
 					break;
 				}
 				case 4:{
-					Input_static = CreateWindowEx( 0, "STATIC", "Zmieñ wartoœæ pojemnoœci C2", WS_CHILD | WS_VISIBLE | SS_CENTER,
+					Input_static = CreateWindowEx( 0, "STATIC", "Zmieñ pojemnoœæ C2", WS_CHILD | WS_VISIBLE | SS_CENTER,
 					50, /* x */
 					20, /* y */
 					300, /* width */
@@ -636,7 +651,7 @@ LRESULT CALLBACK WndProcInput(HWND hwnd3, UINT Message, WPARAM wParam, LPARAM lP
 					break;
 				}
 				case 5:{
-					Input_static = CreateWindowEx( 0, "STATIC", "Zmieñ wartoœæ amplitudy sygna³u", WS_CHILD | WS_VISIBLE | SS_CENTER,
+					Input_static = CreateWindowEx( 0, "STATIC", "Zmieñ 2amplitudê sygna³u", WS_CHILD | WS_VISIBLE | SS_CENTER,
 					50, /* x */
 					20, /* y */
 					300, /* width */
@@ -654,7 +669,7 @@ LRESULT CALLBACK WndProcInput(HWND hwnd3, UINT Message, WPARAM wParam, LPARAM lP
 					break;
 				}
 				case 6:{
-					Input_static = CreateWindowEx( 0, "STATIC", "Zmieñ wartoœæ czêstotliwoœci sygna³u", WS_CHILD | WS_VISIBLE | SS_CENTER,
+					Input_static = CreateWindowEx( 0, "STATIC", "Zmieñ czêstotliwoœæ sygna³u", WS_CHILD | WS_VISIBLE | SS_CENTER,
 					50, /* x */
 					20, /* y */
 					300, /* width */
@@ -671,9 +686,26 @@ LRESULT CALLBACK WndProcInput(HWND hwnd3, UINT Message, WPARAM wParam, LPARAM lP
 					SetWindowText( Input_text, GetValue(sygnal_freq, '-') );
 					break;
 				}
+				case 7:{
+					Input_static = CreateWindowEx( 0, "STATIC", "Zmieñ czas symulacji", WS_CHILD | WS_VISIBLE | SS_CENTER,
+					50, /* x */
+					20, /* y */
+					300, /* width */
+					20, /* height */
+					hwnd3, ( HMENU ) NULL, hInstance, NULL );
+					
+					Input_text = CreateWindowEx( 0, "EDIT", NULL, WS_CHILD | WS_VISIBLE | WS_BORDER,
+					50, /* x */
+					60, /* y */
+					300, /* width */
+					20, /* height */
+					hwnd3, ( HMENU ) NULL, hInstance, NULL );
+					g_OldWndProc = ( WNDPROC ) SetWindowLong( Input_text, GWL_WNDPROC,( LONG ) WndProcText );
+					SetWindowText( Input_text, GetValue(czas_symulacji, '-') );
+					break;
+				}	
 
 			}				
-
 			break;
 		}
 	
@@ -721,6 +753,11 @@ LRESULT CALLBACK WndProcInput(HWND hwnd3, UINT Message, WPARAM wParam, LPARAM lP
 								SetWindowText( Freq_value, GetValue(sygnal_freq, 'f'));
 								break;
 							}
+							case 7: {
+								czas_symulacji = IsNumber(Bufor);
+								SetWindowText( simulation_time, GetValue(czas_symulacji, 't'));
+								break;
+							}
 						}
 						zmiana = true;
 						GlobalFree( Bufor );
@@ -748,6 +785,9 @@ LRESULT CALLBACK WndProcInput(HWND hwnd3, UINT Message, WPARAM wParam, LPARAM lP
 						case 6:
 							SetWindowText(Input_text, GetValue(sygnal_freq, '-'));
 							break;
+						case 7:
+							SetWindowText(Input_text, GetValue(czas_symulacji, '-'));
+							break;
 					}  
 					break;
 				}
@@ -762,7 +802,6 @@ LRESULT CALLBACK WndProcInput(HWND hwnd3, UINT Message, WPARAM wParam, LPARAM lP
 		default:
 			return DefWindowProc(hwnd3, Message, wParam, lParam);
 	}
-	
 	return 0;
 }
 
@@ -1050,6 +1089,7 @@ int GetCoord(double liczba, double kratka)
 //
 void DrawTest()
 {
+	int granica = 1000;
 	double U[granica];
 	double X1[granica];
 	double X1p = 0;
@@ -1126,14 +1166,17 @@ void DrawTest()
 			max_amp2 = abs(X2[i]);
 		}
 	}
+	
+	SetWindowText( simulation_time, GetValue(czas_symulacji, 't') );
+	
 	max_amp1 = GetMaxAmp(max_amp1);
 	SetWindowText( max_amp_x1, GetAmpValue(max_amp1) );
-	SetWindowText( period_x1, GetValue(1/sygnal_freq, 't') );
+	SetWindowText( time_x1, GetValue(czas_symulacji, 't') );
 	DrawGraph(X1, max_amp1, 1);
 	
 	max_amp2 = GetMaxAmp(max_amp2);
 	SetWindowText( max_amp_x2, GetAmpValue(max_amp2) );
-	SetWindowText( period_x2, GetValue(1/sygnal_freq, 't') );
+	SetWindowText( time_x2, GetValue(czas_symulacji, 't') );
 	DrawGraph(X2, max_amp2, 2);
 }
 
@@ -1178,7 +1221,6 @@ void DrawGraph(double sygnal[], double max_amp, int numer)
 	HPEN NiebieskiePioro = CreatePen( PS_SOLID, 1, 0xFF0000 );
 	POINT stary_punkt;
 	double kratka_x = max_amp/250;
-	double kratka_y = granica/1000;
 	int start_coord_x = 100;
 	int start_coord_y;
 	
@@ -1196,7 +1238,7 @@ void DrawGraph(double sygnal[], double max_amp, int numer)
 	
 	MoveToEx(hdcOkno, start_coord_x, start_coord_y, &stary_punkt);
 	SelectObject(hdcOkno, NiebieskiePioro);
-	for(int i = 0; i < granica; i++)
+	for(int i = 0; i < 1000; i++)
 	{
 		int coord_y = GetCoord(sygnal[i], kratka_x);
 		LineTo(hdcOkno, start_coord_x + i + 1, start_coord_y - coord_y);
