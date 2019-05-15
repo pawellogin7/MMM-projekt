@@ -1092,20 +1092,19 @@ void DrawTest()
 	int granica = 1000;
 	double U[granica];
 	double X1[granica];
-	double X1p = 0;
-	double X1pk = 0;
-	double X1pp = 0;
-	double X1ppk = 0;
+	X1[0] = 0;
+	double F1 = 0;
+	double F1p = 0;
 	double X2[granica];
-	double X2p = 0;
-	double X2pk = 0;
-	double X2pp = 0;
-	double X2ppk = 0;
+	X2[0] = 0;
+	double F2 = 0;
+	double F2p = 0;
 	double max_amp1 = 0;
 	double max_amp2 = 0;
-	double wspa = R1*R2*R2*C1*C2;
-	double wspb = (R1*R2*C2) + (R1*R2*C1) + (R2*R2*C2);
-	double krok = sygnal_freq/1000;
+//	double wspa = R1*R2*R2*C1*C2;
+//	double wspb = (R1*R2*C2) + (R1*R2*C1) + (R2*R2*C2);
+	double liczba_okresow = czas_symulacji/sygnal_freq; //no generalnie to jest akurat spoko bo tyle bedzie okresow na ekranie sie wyswietlalo zaleznie od czasu symulacji i frekuensi
+	double krok = liczba_okresow/1000; //oj tak
 	
 	switch(sygnal_typ)
 	{
@@ -1113,11 +1112,11 @@ void DrawTest()
 		{
 			for ( int i = 0 ; i < granica ; i++ )
 			{
-				U[i] = sygnal_amp;
+				U[i] = sygnal_amp; //tu generalnie ktos genialnie uzaleznil amplitude skoku od czestotliwosci sygnalu i czasu symulacji, a nie czekaj skok jest staly
 			}
 			break;
 		}
-		case 1:
+		case 1: //prostykonty jeszcze nie zrobione jak cos, no bo nie, ale mam pomysl jak to zrobic chyba wiec teraz juz tego nie zrobie xd
 		{
 			for ( int i = 0 ; i < granica ; i++ ){
 				if ( i < 500 ){
@@ -1129,35 +1128,27 @@ void DrawTest()
 			}
 			break;
 		}
-		case 2:
+		case 2: //to jest chyba moj najwiekszy sukces na dzisiaj, powinno dzialac zeby sie sinusik ladnie uzupelnial :3
 		{
 			for ( int i = 0 ; i < granica ; i++ ){
-				U[i] = sin((i*2*M_PI/1000));
+				U[i] = sin(((i*2*M_PI*liczba_okresow)/1000));
 			}
 			break;
 		}
 	}
 	
-	for ( int i = 1 ; i < granica ; i++ )
+	for ( int i = 1 ; i < granica ; i++)
 	{
-		X1ppk = X1pp;
-		if ( i == 1 ){
-			X1pp = ((R2*R2*C2*U[i-1]) + R2*U[i-1] - (wspb * X1p) - ( R2 * X1[i-1] ))/wspa;			
-		}
-		else{			
-			X1pp = ((R2*R2*C2*(U[i-1]-U[i-2])) + R2*U[i-1] - (wspb * X1p) - ( R2 * X1[i-1] ))/wspa;
-		}
-		X1pk = X1p;
-		X1p += (krok*(X1pp+X1ppk))/2.0;
+		F1p = F1; //F1p - funkcja Ax + Bu w chwili poprzedniej
+		F1 = (-(R1+R2)/(R1*R2*C1))*X1[i-1] + (1/(R2*C1))*X2[i-1] + (1/(R1*C1))*U[i-1]; //F1 obliczana w chwili obecnej 
 		
-		X1[i] = X1[i-1] + ((krok*(X1p+X1pk))/2.0);		
+		X1[i] = X1[i-1] + krok*(F1+F1p)/2.0; //X obliczany dla przyszlosci, zeby potomnosc tez cos miala z programu, oczywiscie liczymy to z X "obecnego" i caleczki z poprzedniej funkcji iks de
+		//ale wejt to chyba nie jest dobrze jednak, bo mimo wszystko nie wiem czemu xd
 		
-		X2ppk = X2pp;
-		X2pp = (R2*U[i-1] - R2*X2[i-1] - (wspb*X2p))/wspa;
-		X2pk = X2p;
-		X2p += (krok*(X2pp+X2ppk))/2.0;
+		F2p = F2;
+		F2 = (1/(R2*C2))*X1[i-1] - (1/(R2*C2))*X2[i-1];
 		
-		X2[i] = X2[i-1] + ((krok*(X2p+X2pk))/2.0);
+		X2[i] = X2[i-1] + krok*(F2+F2p)/2.0;
 		
 		if( abs(X1[i]) > max_amp1 ){
 			max_amp1 = abs(X1[i]);
@@ -1166,6 +1157,36 @@ void DrawTest()
 			max_amp2 = abs(X2[i]);
 		}
 	}
+	
+	//to generalnie chyba do wyebania
+//	for ( int i = 1 ; i < granica ; i++ )
+//	{
+//		X1ppk = X1pp;
+//		if ( i == 1 ){
+//			X1pp = ((R2*R2*C2*U[i-1]) + R2*U[i-1] - (wspb * X1p) - ( R2 * X1[i-1] ))/wspa;			
+//		}
+//		else{			
+//			X1pp = ((R2*R2*C2*(U[i-1]-U[i-2])) + R2*U[i-1] - (wspb * X1p) - ( R2 * X1[i-1] ))/wspa;
+//		}
+//		X1pk = X1p;
+//		X1p += (krok*(X1pp+X1ppk))/2.0;
+//		
+//		X1[i] = X1[i-1] + ((krok*(X1p+X1pk))/2.0);		
+//		
+//		X2ppk = X2pp;
+//		X2pp = (R2*U[i-1] - R2*X2[i-1] - (wspb*X2p))/wspa;
+//		X2pk = X2p;
+//		X2p += (krok*(X2pp+X2ppk))/2.0;
+//		
+//		X2[i] = X2[i-1] + ((krok*(X2p+X2pk))/2.0);
+//		
+//		if( abs(X1[i]) > max_amp1 ){
+//			max_amp1 = abs(X1[i]);
+//		}
+//		if( abs(X2[i]) > max_amp2 ){
+//			max_amp2 = abs(X2[i]);
+//		}
+//	}
 	
 	SetWindowText( simulation_time, GetValue(czas_symulacji, 't') );
 	
