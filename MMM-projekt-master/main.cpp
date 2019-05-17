@@ -3,6 +3,7 @@
 #include <sstream>
 #include <cmath>
 
+
 using namespace std;
 
 //hwnd
@@ -86,8 +87,6 @@ double MaxAmp_x1;
 double MaxAmp_x2;
 int input_typ;
 
-bool zmiana = false;
-bool marker_zmiana = false;
 bool m1_x1 = false;
 bool m2_x1 = false;
 bool m1_x2 = false;
@@ -114,6 +113,7 @@ void CreateInputWindow(int typ);
 void ZmienDelte();
 void DeleteMarker(int marker_id);
 void CreateMarker(int marker_id);
+void ZerujMarkery();
 bool IsNumber(LPSTR text1);
 double GetNumber(LPSTR text1);
 double GetNumberTime(LPSTR text1);
@@ -148,8 +148,9 @@ int WINAPI WinMain(HINSTANCE hInstance = hInstance, HINSTANCE hPrevInstance, LPS
 	/* White, COLOR_WINDOW is just a #define for a system color, try Ctrl+Clicking it */
 	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
 	wc.lpszClassName = "WindowClass";
-	wc.hIcon		 = LoadIcon(NULL, IDI_APPLICATION); /* Load a standard icon */
-	wc.hIconSm		 = LoadIcon(NULL, IDI_APPLICATION); /* use the name "A" to use the project icon */
+	wc.hIcon		 = LoadIcon(hInstance, MAKEINTRESOURCE(1000));
+	wc.hIconSm		 = LoadIcon(hInstance, MAKEINTRESOURCE(1000));
+
 
 	WNDCLASSEX wc2;
 	memset(&wc2,0,sizeof(wc2));
@@ -159,8 +160,8 @@ int WINAPI WinMain(HINSTANCE hInstance = hInstance, HINSTANCE hPrevInstance, LPS
 	wc2.hCursor		 = LoadCursor(NULL, IDC_CROSS);
 	wc2.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
 	wc2.lpszClassName = "WindowClassChild";
-	wc2.hIcon		 = LoadIcon(NULL, IDI_APPLICATION); /* Load a standard icon */
-	wc2.hIconSm		 = LoadIcon(NULL, IDI_APPLICATION); /* use the name "A" to use the project icon */
+	wc2.hIcon		 = LoadIcon(hInstance, MAKEINTRESOURCE(1001));
+	wc2.hIconSm		 = LoadIcon(hInstance, MAKEINTRESOURCE(1001));
 	
 	WNDCLASSEX wc3;
 	memset(&wc3,0,sizeof(wc3));
@@ -170,8 +171,8 @@ int WINAPI WinMain(HINSTANCE hInstance = hInstance, HINSTANCE hPrevInstance, LPS
 	wc3.hCursor		 = LoadCursor(NULL, IDC_ARROW);
 	wc3.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
 	wc3.lpszClassName = "WindowClassInput";
-	wc3.hIcon		 = LoadIcon(NULL, IDI_APPLICATION); /* Load a standard icon */
-	wc3.hIconSm		 = LoadIcon(NULL, IDI_APPLICATION); /* use the name "A" to use the project icon */
+	wc3.hIcon		 = LoadIcon(hInstance, MAKEINTRESOURCE(1002));
+	wc3.hIconSm		 = LoadIcon(hInstance, MAKEINTRESOURCE(1002));
 	
 
 	if(!RegisterClassEx(&wc)) {
@@ -336,7 +337,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 		{
 			if(HIWORD(wParam) == CBN_SELCHANGE)
             // If the user makes a selection from the list:
-            //   Send CB_GETCURSEL message to get the index of the selected list item.
+            //  Send CB_GETCURSEL message to get the index of the selected list item.
             { 
                 int ItemIndex = SendMessage(U_combo, (UINT) CB_GETCURSEL, (WPARAM) 0, (LPARAM) 0);
                 switch (ItemIndex)
@@ -359,43 +360,45 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 						SetWindowText( Freq_value, GetValue(sygnal_freq, 'f', 0) );
 						break;
 					}
-						
-				}              
+				}
+				InvalidateRect(hwnd2, NULL, false);
+				UpdateWindow(hwnd2);
+				ZerujMarkery();          
           	}
           	
 			switch (wParam)
 			{		
 				case ID_R1: {	 
 					CreateInputWindow(1);
+					break;
 				}	
-				break;
-				
+							
 				case ID_R2:	{	    
 					CreateInputWindow(2);
+					break;
 				}	
-				break;
-				
+						
 				case ID_C1: {	    
 					CreateInputWindow(3);
+					break;
 				}	
-				break;
-				
+								
 				case ID_C2: {	    
 					CreateInputWindow(4);
+					break;
 				}	
-				break;
-				
+								
 				case ID_Amp: {
 					CreateInputWindow(5);
+					break;
 				}
-				break;
-				
+								
 				case ID_Freq: {
 					if(sygnal_typ != 0)
 						CreateInputWindow(6);
+					break;
 				}				
-			    break;
-			    
+			    			    
 			    case ID_Przebiegi: {
 					DestroyWindow(hwnd2);
 					hwnd2 = CreateWindowEx(WS_EX_CLIENTEDGE,"WindowClassChild","Przebiegi sygna³ów",WS_POPUP|WS_OVERLAPPEDWINDOW|WS_VSCROLL,
@@ -422,12 +425,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					
 					ShowWindow(hwnd2, SW_SHOW);
     				UpdateWindow( hwnd2 );
+    				break;
 				}
-				break;
 			}
-
 		}
-		
+			
 		/* All other messages (a lot of them) are processed using default procedures */
 		default:
 			return DefWindowProc(hwnd, Message, wParam, lParam);
@@ -855,7 +857,8 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 	   				SetWindowText( x1_czas_marker1, (LPSTR) "--------" );
 	   				m1_x1 = false;	   				
 				}
-				marker_zmiana = true;
+				ZmienDelte();
+				UpdateWindow(hwnd2);
 			}
 			else if( PtInRegion( hRgn2, cur.x, cur.y) )
 			{
@@ -875,7 +878,8 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 	   				SetWindowText( x2_czas_marker1, (LPSTR) "--------" );
 	   				m1_x2 = false;
 				}
-				marker_zmiana = true;
+				ZmienDelte();
+				UpdateWindow(hwnd2);
 			}
 			else
 				break;
@@ -927,7 +931,8 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 	   				SetWindowText( x1_czas_marker2, (LPSTR) "--------" );
 	   				m2_x1 = false;
 				}
-				marker_zmiana = true;
+				ZmienDelte();
+				UpdateWindow(hwnd2);
 			}
 			else if( PtInRegion( hRgn2, cur.x, cur.y) )
 			{
@@ -947,7 +952,8 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 	   				SetWindowText( x2_czas_marker2, (LPSTR) "--------" );
 	   				m2_x2 = false;
 				}
-				marker_zmiana = true;
+				ZmienDelte();
+				UpdateWindow(hwnd2);
 			}
 			else
 				break;
@@ -1013,23 +1019,10 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 			    SetScrollInfo( hwnd2, SB_VERT, & si, TRUE );
 		}
 		break;
-		
-		if(zmiana)
-		{
-			GraphCalculations();
-		}
-				/* All other messages (a lot of them) are processed using default procedures */		
+		/* All other messages (a lot of them) are processed using default procedures */		
 		default:
 			return DefWindowProc(hwnd2, Message, wParam, lParam);
 	}
-	//Jesli wykryta zostanie zmiana wartosci (R1, R2, C1, C2, sygnal_typ, sygnal_amp, sygnal_freq)
-		//to wykresy sa aktualizowane automatycznie
-	if(marker_zmiana)
-	{
-		ZmienDelte();
-	}
-
-	
 	return 0;
 }
 
@@ -1080,8 +1073,7 @@ LRESULT CALLBACK WndProcInput(HWND hwnd3, UINT Message, WPARAM wParam, LPARAM lP
 					20, /* height */
 					hwnd3, ( HMENU ) NULL, hInstance, NULL );
 					OldWndProc = ( WNDPROC ) SetWindowLong( Input_text, GWL_WNDPROC,( LONG ) WndProcText );
-					SetWindowText( Input_text, GetValue(R2, '-', 0) );
-					
+					SetWindowText( Input_text, GetValue(R2, '-', 0) );					
 					break;
 				}
 				case 3:{
@@ -1173,8 +1165,7 @@ LRESULT CALLBACK WndProcInput(HWND hwnd3, UINT Message, WPARAM wParam, LPARAM lP
 					OldWndProc = ( WNDPROC ) SetWindowLong( Input_text, GWL_WNDPROC,( LONG ) WndProcText );
 					SetWindowText( Input_text, GetValue(czas_symulacji, '-', 0) );
 					break;
-				}	
-
+				}
 			}				
 			break;
 		}
@@ -1229,7 +1220,9 @@ LRESULT CALLBACK WndProcInput(HWND hwnd3, UINT Message, WPARAM wParam, LPARAM lP
 								break;
 							}
 						}
-						zmiana = true;
+						InvalidateRect(hwnd2, NULL, false);
+						UpdateWindow(hwnd2);
+						ZerujMarkery();
 						GlobalFree( Bufor );
 						DestroyWindow(hwnd3);
 					}
@@ -1392,8 +1385,6 @@ void ZmienDelte()
 		SetWindowText( x2_amp_delta, (LPSTR) "--------" );
 		SetWindowText( x2_czas_delta, (LPSTR) "--------" );
 	}
-			
-	marker_zmiana = false;
 }
 
 void DeleteMarker(int marker_id)
@@ -1625,6 +1616,30 @@ void CreateMarker(int marker_id)
 	ReleaseDC(hwnd2, hdcOkno);
 }
 
+
+void ZerujMarkery()
+{
+	DeleteMarker(1);
+	DeleteMarker(2);
+	DeleteMarker(3);
+	DeleteMarker(4);
+	m1_x1 = false;
+	m2_x1 = false;
+	m1_x2 = false;
+	m2_x2 = false;
+	SetWindowText( x1_amp_marker1, (LPSTR) "--------" );
+	SetWindowText( x1_czas_marker1, (LPSTR) "--------" );
+	SetWindowText( x1_amp_marker2, (LPSTR) "--------" );
+	SetWindowText( x1_czas_marker2, (LPSTR) "--------" );
+	SetWindowText( x1_amp_delta, (LPSTR) "--------" );
+	SetWindowText( x1_czas_delta, (LPSTR) "--------" );
+	SetWindowText( x2_amp_marker1, (LPSTR) "--------" );
+	SetWindowText( x2_czas_marker1, (LPSTR) "--------" );
+	SetWindowText( x2_amp_marker2, (LPSTR) "--------" );
+	SetWindowText( x2_czas_marker2, (LPSTR) "--------" );
+	SetWindowText( x2_amp_delta, (LPSTR) "--------" );
+	SetWindowText( x2_czas_delta, (LPSTR) "--------" );
+}
 
 //Funkcja sprawdzajaca, czy tekst wczytany z pola typu EDIT jest liczba double
 //Dopuszcza sie jedna kropke, spacje na koncu i uzywanie przedrostkow (p, n, u, m, k, M, G, T)
@@ -2147,7 +2162,6 @@ void DrawGraph(double sygnal[], double max_amp, int numer)
 		LineTo(hdcOkno, start_coord_x + i + 1, start_coord_y - coord_y);
 	}
 	
-	bool zmiana = false;
 	DeleteObject(NiebieskiePioro);
 	ReleaseDC(hwnd2, hdcOkno);
 }

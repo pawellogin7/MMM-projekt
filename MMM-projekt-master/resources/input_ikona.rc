@@ -1,0 +1,3 @@
+#include "input_ikona.h"
+
+ID_IICON ICON "pictures/input_ikona.ico"

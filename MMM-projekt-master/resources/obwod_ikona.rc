@@ -1,0 +1,3 @@
+#include "obwod_ikona.h"
+
+ID_OICON ICON "pictures/obwod_ikona.ico"
