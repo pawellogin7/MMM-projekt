@@ -3,7 +3,6 @@
 #include <sstream>
 #include <cmath>
 
-
 using namespace std;
 
 //hwnd
@@ -83,8 +82,8 @@ int sygnal_typ = 0;
 double sygnal_amp = 1;
 double sygnal_freq = 1;
 double czas_symulacji = 1; //w sekundach
-double MaxAmp_x1;
-double MaxAmp_x2;
+double MaxAmp_x1 = 0;
+double MaxAmp_x2 = 0;
 int input_typ;
 
 bool m1_x1 = false;
@@ -123,11 +122,10 @@ LPSTR GetValue(double liczba, char typ, bool zero_acceptable);
 double GetMaxAmp(double liczba);
 LPSTR GetAmpValue(double liczba);
 int GetCoord(double liczba, double kratka);
+void GraphCalculations();
 void DrawGraph(double sygnal[], double max_amp, int numer);
 void Rozdzielacz(int szerokosc, int y, int kolor);
-
-void GraphCalculations();
-
+double FalaProstokatna(int liczba);
 
 
 
@@ -324,7 +322,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			
 			//------------Przebiegi------------------
 			Przebiegi_button = CreateWindowEx(0, "BUTTON", "Rysuj przebiegi sygna³ów", WS_CHILD | WS_VISIBLE,
-				50,
+				70,
 				450,
 				200,
 				50,
@@ -362,8 +360,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 					}
 				}
 				InvalidateRect(hwnd2, NULL, false);
-				UpdateWindow(hwnd2);
-				ZerujMarkery();          
+				ZerujMarkery();
+				UpdateWindow(hwnd2);        
           	}
           	
 			switch (wParam)
@@ -429,6 +427,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 				}
 			}
 		}
+		
+		case WM_LBUTTONDOWN:
+		{
+			
+						
+		break;
+		}
 			
 		/* All other messages (a lot of them) are processed using default procedures */
 		default:
@@ -487,14 +492,14 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 		case WM_CREATE: {									
 			max_amp_x1 = CreateWindowEx( 0, "STATIC", NULL, WS_CHILD | WS_VISIBLE | SS_RIGHT,
 				15, /* x */
-				6, /* y */
+				8, /* y */
 				120, /* width */
 				21, /* height */
 				hwnd2, ( HMENU ) NULL, hInstance, NULL );	
 				
 			max_amp_x2 = CreateWindowEx( 0, "STATIC", NULL, WS_CHILD | WS_VISIBLE | SS_RIGHT,
 				15, /* x */
-				545, /* y */
+				547, /* y */
 				120, /* width */
 				20, /* height */
 				hwnd2, ( HMENU ) NULL, hInstance, NULL );
@@ -825,7 +830,7 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 			hDC = GetDC(hwnd2);
 			
 			bool pixel_wykres = false;
-			int blad = 1;			
+			int blad = 2;			
 			for(int i = -blad; i <= blad; i++)
 			{
 				for(int j = -blad; j <= blad; j++)
@@ -899,7 +904,7 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 			hDC = GetDC(hwnd2);
 			
 			bool pixel_wykres = false;
-			int blad = 1;			
+			int blad = 2;			
 			for(int i = -blad; i <= blad; i++)
 			{
 				for(int j = -blad; j <= blad; j++)
@@ -1442,50 +1447,44 @@ void DeleteMarker(int marker_id)
 		}
 		//--------Marker 1 dla x2---------
 		case 3: {
-			if(m1_x2 == true)
-			{
-				if(m2_x2 == true && m1_x2_y == m2_x2_y)
-					SelectObject(hdcOkno, RedPen);
-				else
-					SelectObject(hdcOkno, WhitePen);								
-				MoveToEx(hdcOkno, 135, m1_x2_y, &stary_punkt);
-				LineTo(hdcOkno, 150, m1_x2_y);
-				MoveToEx(hdcOkno, 1152, m1_x2_y, &stary_punkt);
-				LineTo(hdcOkno, 1167, m1_x2_y);
-				
-				if(m2_x2 == true && m1_x2_x == m2_x2_x)
-					SelectObject(hdcOkno, RedPen);
-				else
-					SelectObject(hdcOkno, WhitePen);					
-				MoveToEx(hdcOkno, m1_x2_x, 539, &stary_punkt);
-				LineTo(hdcOkno, m1_x2_x, 554);
-				MoveToEx(hdcOkno, m1_x2_x, 1055, &stary_punkt);
-				LineTo(hdcOkno, m1_x2_x, 1070);
-			}
+			if(m2_x2 == true && m1_x2_y == m2_x2_y)
+				SelectObject(hdcOkno, RedPen);
+			else
+				SelectObject(hdcOkno, WhitePen);								
+			MoveToEx(hdcOkno, 135, m1_x2_y, &stary_punkt);
+			LineTo(hdcOkno, 150, m1_x2_y);
+			MoveToEx(hdcOkno, 1152, m1_x2_y, &stary_punkt);
+			LineTo(hdcOkno, 1167, m1_x2_y);
+			
+			if(m2_x2 == true && m1_x2_x == m2_x2_x)
+				SelectObject(hdcOkno, RedPen);
+			else
+				SelectObject(hdcOkno, WhitePen);					
+			MoveToEx(hdcOkno, m1_x2_x, 539, &stary_punkt);
+			LineTo(hdcOkno, m1_x2_x, 554);
+			MoveToEx(hdcOkno, m1_x2_x, 1055, &stary_punkt);
+			LineTo(hdcOkno, m1_x2_x, 1070);
 			break;
 		}
 		//--------Marker 2 dla x2---------
 		case 4: {	
-			if(m2_x2 == true)
-			{
-				if(m1_x2 == true && m1_x2_y == m2_x2_y)
-					SelectObject(hdcOkno, GreenPen);
-				else
-					SelectObject(hdcOkno, WhitePen);								
-				MoveToEx(hdcOkno, 135, m2_x2_y, &stary_punkt);
-				LineTo(hdcOkno, 150, m2_x2_y);
-				MoveToEx(hdcOkno, 1152, m2_x2_y, &stary_punkt);
-				LineTo(hdcOkno, 1167, m2_x2_y);
-				
-				if(m1_x2 == true && m1_x2_x == m2_x2_x)
-					SelectObject(hdcOkno, GreenPen);
-				else
-					SelectObject(hdcOkno, WhitePen);					
-				MoveToEx(hdcOkno, m2_x2_x, 539, &stary_punkt);
-				LineTo(hdcOkno, m2_x2_x, 554);
-				MoveToEx(hdcOkno, m2_x2_x, 1055, &stary_punkt);
-				LineTo(hdcOkno, m2_x2_x, 1070);
-			}
+			if(m1_x2 == true && m1_x2_y == m2_x2_y)
+				SelectObject(hdcOkno, GreenPen);
+			else
+				SelectObject(hdcOkno, WhitePen);								
+			MoveToEx(hdcOkno, 135, m2_x2_y, &stary_punkt);
+			LineTo(hdcOkno, 150, m2_x2_y);
+			MoveToEx(hdcOkno, 1152, m2_x2_y, &stary_punkt);
+			LineTo(hdcOkno, 1167, m2_x2_y);
+			
+			if(m1_x2 == true && m1_x2_x == m2_x2_x)
+				SelectObject(hdcOkno, GreenPen);
+			else
+				SelectObject(hdcOkno, WhitePen);					
+			MoveToEx(hdcOkno, m2_x2_x, 539, &stary_punkt);
+			LineTo(hdcOkno, m2_x2_x, 554);
+			MoveToEx(hdcOkno, m2_x2_x, 1055, &stary_punkt);
+			LineTo(hdcOkno, m2_x2_x, 1070);
 			break;
 		}
 	}
@@ -1619,14 +1618,14 @@ void CreateMarker(int marker_id)
 
 void ZerujMarkery()
 {
-	DeleteMarker(1);
-	DeleteMarker(2);
-	DeleteMarker(3);
-	DeleteMarker(4);
 	m1_x1 = false;
 	m2_x1 = false;
 	m1_x2 = false;
 	m2_x2 = false;
+	DeleteMarker(1);
+	DeleteMarker(2);
+	DeleteMarker(3);
+	DeleteMarker(4);
 	SetWindowText( x1_amp_marker1, (LPSTR) "--------" );
 	SetWindowText( x1_czas_marker1, (LPSTR) "--------" );
 	SetWindowText( x1_amp_marker2, (LPSTR) "--------" );
@@ -1910,7 +1909,11 @@ LPSTR GetValue(double liczba, char typ, bool zero_acceptable)
 //Funkcja uzywana do poprawy wizualizacji wartosci maksymalnej amplitudy
 double GetMaxAmp(double liczba)
 {
-	for(double i = -60; i < 60; i += 3)
+	if(abs(liczba) < pow(10, -60))
+		return 1*pow(10, -60);
+	else if(abs(liczba) > pow(10, 60))
+		return 1*pow(10, 60);
+	for(double i = -60; i <= 60; i += 3)
 	{	
 		if(abs(liczba >= pow(10, i) && abs(liczba) < pow(10, i + 3)))
 		{
@@ -1933,9 +1936,47 @@ LPSTR GetAmpValue(double liczba)
 		strs << 0;
 		napis = strs.str();
 	}
+	else if(abs(liczba) < pow(10, -60))
+	{
+		if(liczba == abs(liczba))
+		{
+			strs << 1;
+			napis = strs.str();
+			napis = strs.str() + "*10^";
+			strs1 << -60;
+			napis += strs1.str();
+		}
+		else
+		{
+			strs << -1;
+			napis = strs.str();
+			napis = strs.str() + "*10^";
+			strs1 << -60;
+			napis += strs1.str();
+		}
+	}
+	else if(abs(liczba) > pow(10, 60))
+	{
+		if(liczba == abs(liczba))
+		{
+			strs << 1;
+			napis = strs.str();
+			napis = strs.str() + "*10^";
+			strs1 << 60;
+			napis += strs1.str();
+		}
+		else
+		{
+			strs << -1;
+			napis = strs.str();
+			napis = strs.str() + "*10^";
+			strs1 << 60;
+			napis += strs1.str();
+		}
+	}	
 	else
 	{
-		for(double i = -60; i < 60; i += 3)
+		for(double i = -60; i <= 60; i += 3)
 		{	
 			if(abs(liczba) >= pow(10, i) && abs(liczba) < pow(10, i + 3))
 			{
@@ -1953,16 +1994,13 @@ LPSTR GetAmpValue(double liczba)
 	return wynik;
 }
 
-//Fukncja zwracajaca pixel, do ktorego rysowany bedzie wykres
-int GetCoord(double liczba, double kratka)
-{
-	int Coord = round(liczba/kratka);
-	return Coord;
-}
 
 //
 void GraphCalculations()
 {
+	MaxAmp_x1 = 0;
+	MaxAmp_x2 = 0;
+		
 	int granica = 1000;
 	double U[granica];
 	double X1[granica];
@@ -1973,11 +2011,9 @@ void GraphCalculations()
 	X2[0] = 0;
 	double F2 = 0;
 	double F2p = 0;
-	double max_amp1 = 0;
-	double max_amp2 = 0;
 //	double wspa = R1*R2*R2*C1*C2;
 //	double wspb = (R1*R2*C2) + (R1*R2*C1) + (R2*R2*C2);
-	double liczba_okresow = czas_symulacji/sygnal_freq; //no generalnie to jest akurat spoko bo tyle bedzie okresow na ekranie sie wyswietlalo zaleznie od czasu symulacji i frekuensi
+	double liczba_okresow = czas_symulacji*sygnal_freq; //no generalnie to jest akurat spoko bo tyle bedzie okresow na ekranie sie wyswietlalo zaleznie od czasu symulacji i frekuensi
 	double krok = liczba_okresow/1000; //oj tak
 	
 	switch(sygnal_typ)
@@ -1993,12 +2029,7 @@ void GraphCalculations()
 		case 1: //prostykonty jeszcze nie zrobione jak cos, no bo nie, ale mam pomysl jak to zrobic chyba wiec teraz juz tego nie zrobie xd
 		{
 			for ( int i = 0 ; i < granica ; i++ ){
-				if ( i < 500 ){
-					U[i] = sygnal_amp;
-				}
-				else{
-					U[i] = - sygnal_amp;
-				}
+				U[i] = FalaProstokatna(i);
 			}
 			break;
 		}
@@ -2024,13 +2055,46 @@ void GraphCalculations()
 		
 		X2[i] = X2[i-1] + krok*(F2+F2p)/2.0;
 		
-		if( abs(X1[i]) > max_amp1 ){
-			max_amp1 = abs(X1[i]);
+		//Zabezpieczenie przed wartosciami mniejszymi niz 10^-60 i wiekszymi niz 10^60
+		//Ogolnie tego brakowalo, juz raczej wykresy sie nie beda wypierdalac
+		if(abs(X1[i]) < pow(10, -60))
+		{
+			if(X1[i] == abs(X1[i]))
+				X1[i] = 1*pow(10, -60);
+			else
+				X1[i] = -1*pow(10, -60);
 		}
-		if( abs(X2[i]) > max_amp2 ){
-			max_amp2 = abs(X2[i]);
+		else if(X1[i] > pow(10, 60))
+		{
+			if(X1[i] == abs(X1[i]))
+				X1[i] = 1*pow(10, 60);
+			else
+				X1[i] = -1*pow(10, 60);
+		}
+			
+		if(abs(X2[i]) < pow(10, -60))
+		{
+			if(X2[i] == abs(X2[i]))
+				X2[i] = 1*pow(10, -60);
+			else
+				X2[i] = -1*pow(10, -60);
+		}
+		else if(X2[i] > pow(10, 60))
+		{
+			if(X2[i] == abs(X2[i]))
+				X2[i] = 1*pow(10, 60);
+			else
+				X2[i] = -1*pow(10, 60);
+		}
+				
+		if( abs(X1[i]) > MaxAmp_x1 ){
+			MaxAmp_x1 = abs(X1[i]);
+		}
+		if( abs(X2[i]) > MaxAmp_x2 ){
+			MaxAmp_x2 = abs(X2[i]);
 		}
 	}
+	
 	
 	//to generalnie chyba do wyebania
 //	for ( int i = 1 ; i < granica ; i++ )
@@ -2066,7 +2130,7 @@ void GraphCalculations()
 	//Nie ruszaæ mi tego!
 	SetWindowText( simulation_time, GetValue(czas_symulacji, 't', 0) );
 	
-	MaxAmp_x1 = GetMaxAmp(max_amp1);
+	MaxAmp_x1 = GetMaxAmp(MaxAmp_x1);
 	SetWindowText( max_amp_x1, GetAmpValue(MaxAmp_x1) );
 	SetWindowText( time_x1, GetValue(czas_symulacji, 't', 0) );
 	if(m1_x1 == true)
@@ -2081,7 +2145,7 @@ void GraphCalculations()
 	}
 	DrawGraph(X1, MaxAmp_x1, 1);
 	
-	MaxAmp_x2 = GetMaxAmp(max_amp2);
+	MaxAmp_x2 = GetMaxAmp(MaxAmp_x2);
 	SetWindowText( max_amp_x2, GetAmpValue(MaxAmp_x1) );
 	SetWindowText( time_x2, GetValue(czas_symulacji, 't', 0) );
 	if(m1_x2 == true)
@@ -2095,7 +2159,7 @@ void GraphCalculations()
 		SetWindowText( x2_czas_marker2, GetValue( (czas_symulacji * (m2_x2_x - 151) / 1000), 't', 1) );
 	}
 	ZmienDelte();
-	DrawGraph(X2, MaxAmp_x1, 2);
+	DrawGraph(X2, MaxAmp_x2, 2);
 }
 
 //Funkcja rysujaca kreske rozdzielajaca w WndProcChild
@@ -2138,7 +2202,7 @@ void DrawGraph(double sygnal[], double max_amp, int numer)
 	HDC hdcOkno = GetDC(hwnd2);
 	HPEN NiebieskiePioro = CreatePen( PS_SOLID, 1, 0xFF0000 );
 	POINT stary_punkt;
-	double kratka_x = max_amp/250;
+	double kratka_y = max_amp/250;
 	int start_coord_x = 152;
 	int start_coord_y;
 	
@@ -2158,7 +2222,7 @@ void DrawGraph(double sygnal[], double max_amp, int numer)
 	SelectObject(hdcOkno, NiebieskiePioro);
 	for(int i = 0; i < 1000; i++)
 	{
-		int coord_y = GetCoord(sygnal[i], kratka_x);
+		int coord_y = round(sygnal[i]/kratka_y);
 		LineTo(hdcOkno, start_coord_x + i + 1, start_coord_y - coord_y);
 	}
 	
@@ -2166,4 +2230,14 @@ void DrawGraph(double sygnal[], double max_amp, int numer)
 	ReleaseDC(hwnd2, hdcOkno);
 }
 
+
+double FalaProstokatna(int liczba)
+{
+	int T_pol_pixele = round( 500 / (czas_symulacji * sygnal_freq) );
+	liczba = liczba % (T_pol_pixele * 2);
+	if(liczba < T_pol_pixele)
+		return sygnal_amp;
+	else
+		return -1*sygnal_amp;
+}
 
