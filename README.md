@@ -1,1 +1,1 @@
-# MMM-projekt
+# Jędrzej kurwa zrób to całkowanie XD
