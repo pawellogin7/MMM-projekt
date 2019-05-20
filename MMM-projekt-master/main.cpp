@@ -110,7 +110,8 @@ HINSTANCE hInstance;
 
 void CreateInputWindow(int typ);
 void ZmienDelte();
-void DrawMarkers();
+void DeleteMarker(int marker_id);
+void CreateMarker(int marker_id);
 void ZerujMarkery();
 bool IsNumber(LPSTR text1);
 double GetNumber(LPSTR text1);
@@ -480,7 +481,6 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
             EndPaint( hwnd2, &ps );
 			
 			GraphCalculations();
-			DrawMarkers();
 			
 			Rozdzielacz(8, 531, 0);
 			Rozdzielacz(2, 534, 2);	
@@ -846,6 +846,7 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 			
 			if( PtInRegion( hRgn, cur.x, cur.y) )
 			{
+				DeleteMarker(1);
 	    		if (pixel_wykres)
 	    		{
 	   				SetWindowText( x1_amp_marker1, GetAmpValue( MaxAmp_x1 * (266 - cur.y) / 250 ) );
@@ -853,6 +854,7 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 	   				m1_x1 = true;
 	   				m1_x1_x = cur.x;
 	   				m1_x1_y = cur.y;
+	   				CreateMarker(1);
 				}
 				else
 				{
@@ -860,11 +862,12 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 	   				SetWindowText( x1_czas_marker1, (LPSTR) "--------" );
 	   				m1_x1 = false;	   				
 				}
-				InvalidateRect(hwnd2, NULL, false);
+				ZmienDelte();
 				UpdateWindow(hwnd2);
 			}
 			else if( PtInRegion( hRgn2, cur.x, cur.y) )
 			{
+				DeleteMarker(3);
 	    		if (pixel_wykres)
 	    		{
 	   				SetWindowText( x2_amp_marker1, GetAmpValue( MaxAmp_x2 * (805 - cur.y) / 250 ) );
@@ -872,6 +875,7 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 	   				m1_x2 = true;
 	   				m1_x2_x = cur.x;
 	   				m1_x2_y = cur.y;
+	   				CreateMarker(3);
 				}
 				else
 				{
@@ -879,7 +883,7 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 	   				SetWindowText( x2_czas_marker1, (LPSTR) "--------" );
 	   				m1_x2 = false;
 				}
-				InvalidateRect(hwnd2, NULL, false);
+				ZmienDelte();
 				UpdateWindow(hwnd2);
 			}
 			else
@@ -916,6 +920,7 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 			
 			if( PtInRegion( hRgn, cur.x, cur.y) )
 			{
+				DeleteMarker(2);
 	    		if (pixel_wykres)
 	    		{
 	   				SetWindowText( x1_amp_marker2, GetAmpValue( MaxAmp_x1 * (266 - cur.y) / 250) );
@@ -923,6 +928,7 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 	   				m2_x1 = true;
 	   				m2_x1_x = cur.x;
 	   				m2_x1_y = cur.y;
+					CreateMarker(2);
 				}
 				else
 				{
@@ -930,11 +936,12 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 	   				SetWindowText( x1_czas_marker2, (LPSTR) "--------" );
 	   				m2_x1 = false;
 				}
-				InvalidateRect(hwnd2, NULL, false);
+				ZmienDelte();
 				UpdateWindow(hwnd2);
 			}
 			else if( PtInRegion( hRgn2, cur.x, cur.y) )
 			{
+				DeleteMarker(4);
 	    		if (pixel_wykres)
 	    		{
 	   				SetWindowText( x2_amp_marker2, GetAmpValue( MaxAmp_x2 * (805 - cur.y) / 250) );
@@ -942,6 +949,7 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 	   				m2_x2 = true;
 	   				m2_x2_x = cur.x;
 	   				m2_x2_y = cur.y;
+	   				CreateMarker(4);
 				}
 				else
 				{
@@ -949,7 +957,7 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 	   				SetWindowText( x2_czas_marker2, (LPSTR) "--------" );
 	   				m2_x2 = false;
 				}
-				InvalidateRect(hwnd2, NULL, false);
+				ZmienDelte();
 				UpdateWindow(hwnd2);
 			}
 			else
@@ -1384,7 +1392,113 @@ void ZmienDelte()
 	}
 }
 
-void DrawMarkers()
+void DeleteMarker(int marker_id)
+{
+	
+	HDC hdcOkno = GetDC(hwnd2);
+	HPEN GreenPen = CreatePen( PS_SOLID, 1, 0x00FF00 );
+	HPEN RedPen = CreatePen( PS_SOLID, 1, 0x0000FF );
+	HPEN WhitePen = CreatePen( PS_SOLID, 1, 0xFFFFFF );
+	POINT stary_punkt;
+	
+	switch(marker_id)
+	{
+		//--------Marker 1 dla x1---------
+		case 1: {
+			if(m2_x1 == true && m1_x1_y == m2_x1_y)
+				SelectObject(hdcOkno, RedPen);
+			else
+				SelectObject(hdcOkno, WhitePen);								
+			MoveToEx(hdcOkno, 135, m1_x1_y, &stary_punkt);
+			LineTo(hdcOkno, 150, m1_x1_y);
+			MoveToEx(hdcOkno, 1152, m1_x1_y, &stary_punkt);
+			LineTo(hdcOkno, 1167, m1_x1_y);
+			
+			if(m2_x1 == true && m1_x1_x == m2_x1_x)
+				SelectObject(hdcOkno, RedPen);
+			else
+				SelectObject(hdcOkno, WhitePen);								
+			MoveToEx(hdcOkno, m1_x1_x, 0, &stary_punkt);
+			LineTo(hdcOkno, m1_x1_x, 15);
+			MoveToEx(hdcOkno, m1_x1_x, 516, &stary_punkt);
+			LineTo(hdcOkno, m1_x1_x, 531);
+			break;
+		}
+		//--------Marker 2 dla x1---------
+		case 2: {	
+			if(m1_x1 == true && m1_x1_y == m2_x1_y)
+				SelectObject(hdcOkno, GreenPen);
+			else
+				SelectObject(hdcOkno, WhitePen);								
+			MoveToEx(hdcOkno, 135, m2_x1_y, &stary_punkt);
+			LineTo(hdcOkno, 150, m2_x1_y);
+			MoveToEx(hdcOkno, 1152, m2_x1_y, &stary_punkt);
+			LineTo(hdcOkno, 1167, m2_x1_y);
+			
+			if(m1_x1 == true && m1_x1_x == m2_x1_x)
+				SelectObject(hdcOkno, GreenPen);
+			else
+				SelectObject(hdcOkno, WhitePen);								
+			MoveToEx(hdcOkno, m2_x1_x, 0, &stary_punkt);
+			LineTo(hdcOkno, m2_x1_x, 15);
+			MoveToEx(hdcOkno, m2_x1_x, 516, &stary_punkt);
+			LineTo(hdcOkno, m2_x1_x, 531);
+			break;
+		}
+		//--------Marker 1 dla x2---------
+		case 3: {
+			if(m2_x2 == true && m1_x2_y == m2_x2_y)
+				SelectObject(hdcOkno, RedPen);
+			else
+				SelectObject(hdcOkno, WhitePen);								
+			MoveToEx(hdcOkno, 135, m1_x2_y, &stary_punkt);
+			LineTo(hdcOkno, 150, m1_x2_y);
+			MoveToEx(hdcOkno, 1152, m1_x2_y, &stary_punkt);
+			LineTo(hdcOkno, 1167, m1_x2_y);
+			
+			if(m2_x2 == true && m1_x2_x == m2_x2_x)
+				SelectObject(hdcOkno, RedPen);
+			else
+				SelectObject(hdcOkno, WhitePen);					
+			MoveToEx(hdcOkno, m1_x2_x, 539, &stary_punkt);
+			LineTo(hdcOkno, m1_x2_x, 554);
+			MoveToEx(hdcOkno, m1_x2_x, 1055, &stary_punkt);
+			LineTo(hdcOkno, m1_x2_x, 1070);
+			break;
+		}
+		//--------Marker 2 dla x2---------
+		case 4: {	
+			if(m1_x2 == true && m1_x2_y == m2_x2_y)
+				SelectObject(hdcOkno, GreenPen);
+			else
+				SelectObject(hdcOkno, WhitePen);								
+			MoveToEx(hdcOkno, 135, m2_x2_y, &stary_punkt);
+			LineTo(hdcOkno, 150, m2_x2_y);
+			MoveToEx(hdcOkno, 1152, m2_x2_y, &stary_punkt);
+			LineTo(hdcOkno, 1167, m2_x2_y);
+			
+			if(m1_x2 == true && m1_x2_x == m2_x2_x)
+				SelectObject(hdcOkno, GreenPen);
+			else
+				SelectObject(hdcOkno, WhitePen);					
+			MoveToEx(hdcOkno, m2_x2_x, 539, &stary_punkt);
+			LineTo(hdcOkno, m2_x2_x, 554);
+			MoveToEx(hdcOkno, m2_x2_x, 1055, &stary_punkt);
+			LineTo(hdcOkno, m2_x2_x, 1070);
+			break;
+		}
+	}
+	
+	SelectObject(hdcOkno, GreenPen);
+	DeleteObject(GreenPen);
+	SelectObject(hdcOkno, RedPen);
+	DeleteObject(RedPen);
+	SelectObject(hdcOkno, WhitePen);
+	DeleteObject(WhitePen);
+	ReleaseDC(hwnd2, hdcOkno);
+}
+
+void CreateMarker(int marker_id)
 {
 	HDC hdcOkno = GetDC(hwnd2);
 	HPEN GreenPen = CreatePen( PS_SOLID, 1, 0x00FF00 );
@@ -1392,78 +1506,105 @@ void DrawMarkers()
 	HPEN YellowPen = CreatePen( PS_SOLID, 1, 0x00FFFF ); 
 	POINT stary_punkt;
 	
-
+	switch(marker_id)
+	{
 		//--------Marker 1 dla x1---------
-		if(m1_x1 == true)
-		{
+		case 1: {
+			if(m1_x1 == true)
+			{
 				if(m2_x1 == true && m1_x1_y == m2_x1_y)
 					SelectObject(hdcOkno, YellowPen);
 				else
 					SelectObject(hdcOkno, GreenPen);								
-				MoveToEx(hdcOkno, 150, m1_x1_y, &stary_punkt);
-				LineTo(hdcOkno, 1152, m1_x1_y);
+				MoveToEx(hdcOkno, 135, m1_x1_y, &stary_punkt);
+				LineTo(hdcOkno, 150, m1_x1_y);
+				MoveToEx(hdcOkno, 1152, m1_x1_y, &stary_punkt);
+				LineTo(hdcOkno, 1167, m1_x1_y);
 				
 				if(m2_x1 == true && m1_x1_x == m2_x1_x)
 					SelectObject(hdcOkno, YellowPen);
 				else
 					SelectObject(hdcOkno, GreenPen);					
-				MoveToEx(hdcOkno, m1_x1_x, 15, &stary_punkt);
-				LineTo(hdcOkno, m1_x1_x, 516);
+				MoveToEx(hdcOkno, m1_x1_x, 0, &stary_punkt);
+				LineTo(hdcOkno, m1_x1_x, 15);
+				MoveToEx(hdcOkno, m1_x1_x, 516, &stary_punkt);
+				LineTo(hdcOkno, m1_x1_x, 531);
+			}
+			break;
 		}
-		
 		//--------Marker 2 dla x1---------
-	
-		if(m2_x1 == true)
-		{
-			if(m1_x1 == true && m1_x1_y == m2_x1_y)
-				SelectObject(hdcOkno, YellowPen);
-			else
-				SelectObject(hdcOkno, RedPen);								
-			MoveToEx(hdcOkno, 150, m2_x1_y, &stary_punkt);
-			LineTo(hdcOkno, 1152, m2_x1_y);
-			
-			if(m1_x1 == true && m1_x1_x == m2_x1_x)
-				SelectObject(hdcOkno, YellowPen);
-			else
-				SelectObject(hdcOkno, RedPen);					
-			MoveToEx(hdcOkno, m2_x1_x, 15, &stary_punkt);
-			LineTo(hdcOkno, m2_x1_x, 516);
+		case 2: {	
+			if(m2_x1 == true)
+			{
+				if(m1_x1 == true && m1_x1_y == m2_x1_y)
+					SelectObject(hdcOkno, YellowPen);
+				else
+					SelectObject(hdcOkno, RedPen);								
+				MoveToEx(hdcOkno, 135, m2_x1_y, &stary_punkt);
+				LineTo(hdcOkno, 150, m2_x1_y);
+				MoveToEx(hdcOkno, 1152, m2_x1_y, &stary_punkt);
+				LineTo(hdcOkno, 1167, m2_x1_y);
+				
+				if(m1_x1 == true && m1_x1_x == m2_x1_x)
+					SelectObject(hdcOkno, YellowPen);
+				else
+					SelectObject(hdcOkno, RedPen);					
+				MoveToEx(hdcOkno, m2_x1_x, 0, &stary_punkt);
+				LineTo(hdcOkno, m2_x1_x, 15);
+				MoveToEx(hdcOkno, m2_x1_x, 516, &stary_punkt);
+				LineTo(hdcOkno, m2_x1_x, 531);
+			}
+			break;
 		}
-
 		//--------Marker 1 dla x2---------
-		if(m1_x2 == true)
-		{
+		case 3: {
+			if(m1_x2 == true)
+			{
 				if(m2_x2 == true && m1_x2_y == m2_x2_y)
 					SelectObject(hdcOkno, YellowPen);
 				else
 					SelectObject(hdcOkno, GreenPen);								
-				MoveToEx(hdcOkno, 150, m1_x2_y, &stary_punkt);
-				LineTo(hdcOkno, 1152, m1_x2_y);
+				MoveToEx(hdcOkno, 135, m1_x2_y, &stary_punkt);
+				LineTo(hdcOkno, 150, m1_x2_y);
+				MoveToEx(hdcOkno, 1152, m1_x2_y, &stary_punkt);
+				LineTo(hdcOkno, 1167, m1_x2_y);
 				
 				if(m2_x2 == true && m1_x2_x == m2_x2_x)
 					SelectObject(hdcOkno, YellowPen);
 				else
 					SelectObject(hdcOkno, GreenPen);					
-				MoveToEx(hdcOkno, m1_x2_x, 554, &stary_punkt);
-				LineTo(hdcOkno, m1_x2_x, 1065);
+				MoveToEx(hdcOkno, m1_x2_x, 539, &stary_punkt);
+				LineTo(hdcOkno, m1_x2_x, 554);
+				MoveToEx(hdcOkno, m1_x2_x, 1055, &stary_punkt);
+				LineTo(hdcOkno, m1_x2_x, 1070);
+			}
+			break;
 		}
-		//--------Marker 2 dla x2---------	
-		if(m2_x2 == true)
-		{
-			if(m1_x2 == true && m1_x2_y == m2_x2_y)
-				SelectObject(hdcOkno, YellowPen);
-			else
-				SelectObject(hdcOkno, RedPen);								
-			MoveToEx(hdcOkno, 150, m2_x2_y, &stary_punkt);
-			LineTo(hdcOkno, 1152, m2_x2_y);
-			
-			if(m1_x2 == true && m1_x2_x == m2_x2_x)
-				SelectObject(hdcOkno, YellowPen);
-			else
-				SelectObject(hdcOkno, RedPen);					
-			MoveToEx(hdcOkno, m2_x2_x, 554, &stary_punkt);
-			LineTo(hdcOkno, m2_x2_x, 1065);
+		//--------Marker 2 dla x2---------
+		case 4: {	
+			if(m2_x2 == true)
+			{
+				if(m1_x2 == true && m1_x2_y == m2_x2_y)
+					SelectObject(hdcOkno, YellowPen);
+				else
+					SelectObject(hdcOkno, RedPen);								
+				MoveToEx(hdcOkno, 135, m2_x2_y, &stary_punkt);
+				LineTo(hdcOkno, 150, m2_x2_y);
+				MoveToEx(hdcOkno, 1152, m2_x2_y, &stary_punkt);
+				LineTo(hdcOkno, 1167, m2_x2_y);
+				
+				if(m1_x2 == true && m1_x2_x == m2_x2_x)
+					SelectObject(hdcOkno, YellowPen);
+				else
+					SelectObject(hdcOkno, RedPen);					
+				MoveToEx(hdcOkno, m2_x2_x, 539, &stary_punkt);
+				LineTo(hdcOkno, m2_x2_x, 554);
+				MoveToEx(hdcOkno, m2_x2_x, 1055, &stary_punkt);
+				LineTo(hdcOkno, m2_x2_x, 1070);
+			}
+			break;
 		}
+	}
 	
 	SelectObject(hdcOkno, GreenPen);
 	DeleteObject(GreenPen);
@@ -1481,6 +1622,10 @@ void ZerujMarkery()
 	m2_x1 = false;
 	m1_x2 = false;
 	m2_x2 = false;
+	DeleteMarker(1);
+	DeleteMarker(2);
+	DeleteMarker(3);
+	DeleteMarker(4);
 	SetWindowText( x1_amp_marker1, (LPSTR) "--------" );
 	SetWindowText( x1_czas_marker1, (LPSTR) "--------" );
 	SetWindowText( x1_amp_marker2, (LPSTR) "--------" );
@@ -1868,8 +2013,8 @@ void GraphCalculations()
 	double F2p = 0;
 //	double wspa = R1*R2*R2*C1*C2;
 //	double wspb = (R1*R2*C2) + (R1*R2*C1) + (R2*R2*C2);
-	double liczba_okresow = czas_symulacji*sygnal_freq; //no generalnie to jest akurat spoko bo tyle bedzie okresow na ekranie sie wyswietlalo zaleznie od czasu symulacji i frekuensi
-	double krok = liczba_okresow/1000; //oj tak
+	double liczba_okresow = czas_symulacji*sygnal_freq; 
+	double krok = czas_symulacji/1000; 
 	
 	switch(sygnal_typ)
 	{
@@ -1877,18 +2022,18 @@ void GraphCalculations()
 		{
 			for ( int i = 0 ; i < granica ; i++ )
 			{
-				U[i] = sygnal_amp; //tu generalnie ktos genialnie uzaleznil amplitude skoku od czestotliwosci sygnalu i czasu symulacji, a nie czekaj skok jest staly
+				U[i] = sygnal_amp; 
 			}
 			break;
 		}
-		case 1: //prostykonty jeszcze nie zrobione jak cos, no bo nie, ale mam pomysl jak to zrobic chyba wiec teraz juz tego nie zrobie xd
+		case 1: 
 		{
 			for ( int i = 0 ; i < granica ; i++ ){
 				U[i] = FalaProstokatna(i);
 			}
 			break;
 		}
-		case 2: //to jest chyba moj najwiekszy sukces na dzisiaj, powinno dzialac zeby sie sinusik ladnie uzupelnial :3
+		case 2:
 		{
 			for ( int i = 0 ; i < granica ; i++ ){
 				U[i] = sin(((i*2*M_PI*liczba_okresow)/1000));
@@ -1897,18 +2042,17 @@ void GraphCalculations()
 		}
 	}
 	
-	for ( int i = 1 ; i < granica ; i++)
+	for ( int i = 0 ; i < (granica-1) ; i++)
 	{
-		F1p = F1; //F1p - funkcja Ax + Bu w chwili poprzedniej
-		F1 = (-(R1+R2)/(R1*R2*C1))*X1[i-1] + (1/(R2*C1))*X2[i-1] + (1/(R1*C1))*U[i-1]; //F1 obliczana w chwili obecnej 
+//		F1p = F1;
+//		F1 = (-(R1+R2)/(R1*R2*C1))*X1[i-1] + (1/(R2*C1))*X2[i-1] + (1/(R1*C1))*U[i-1];  
 		
-		X1[i] = X1[i-1] + krok*(F1+F1p)/2.0; //X obliczany dla przyszlosci, zeby potomnosc tez cos miala z programu, oczywiscie liczymy to z X "obecnego" i caleczki z poprzedniej funkcji iks de
-		//ale wejt to chyba nie jest dobrze jednak, bo mimo wszystko nie wiem czemu xd
+		X1[i+1] = X1[i] + krok*((-(R1+R2)/(R1*R2*C1))*X1[i] + (1/(R2*C1))*X2[i] + (1/(R1*C1))*U[i]); 
 		
-		F2p = F2;
-		F2 = (1/(R2*C2))*X1[i-1] - (1/(R2*C2))*X2[i-1];
+//		F2p = F2;
+//		F2 = (1/(R2*C2))*X1[i-1] - (1/(R2*C2))*X2[i-1];
 		
-		X2[i] = X2[i-1] + krok*(F2+F2p)/2.0;
+		X2[i+1] = X2[i] + krok*((1/(R2*C2))*X1[i] - (1/(R2*C2))*X2[i]);
 		
 		//Zabezpieczenie przed wartosciami mniejszymi niz 10^-60 i wiekszymi niz 10^60
 		//Ogolnie tego brakowalo, juz raczej wykresy sie nie beda wypierdalac
