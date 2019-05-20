@@ -110,8 +110,7 @@ HINSTANCE hInstance;
 
 void CreateInputWindow(int typ);
 void ZmienDelte();
-void DeleteMarker(int marker_id);
-void CreateMarker(int marker_id);
+void DrawMarkers();
 void ZerujMarkery();
 bool IsNumber(LPSTR text1);
 double GetNumber(LPSTR text1);
@@ -481,6 +480,7 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
             EndPaint( hwnd2, &ps );
 			
 			GraphCalculations();
+			DrawMarkers();
 			
 			Rozdzielacz(8, 531, 0);
 			Rozdzielacz(2, 534, 2);	
@@ -846,7 +846,6 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 			
 			if( PtInRegion( hRgn, cur.x, cur.y) )
 			{
-				DeleteMarker(1);
 	    		if (pixel_wykres)
 	    		{
 	   				SetWindowText( x1_amp_marker1, GetAmpValue( MaxAmp_x1 * (266 - cur.y) / 250 ) );
@@ -854,7 +853,6 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 	   				m1_x1 = true;
 	   				m1_x1_x = cur.x;
 	   				m1_x1_y = cur.y;
-	   				CreateMarker(1);
 				}
 				else
 				{
@@ -862,12 +860,11 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 	   				SetWindowText( x1_czas_marker1, (LPSTR) "--------" );
 	   				m1_x1 = false;	   				
 				}
-				ZmienDelte();
+				InvalidateRect(hwnd2, NULL, false);
 				UpdateWindow(hwnd2);
 			}
 			else if( PtInRegion( hRgn2, cur.x, cur.y) )
 			{
-				DeleteMarker(3);
 	    		if (pixel_wykres)
 	    		{
 	   				SetWindowText( x2_amp_marker1, GetAmpValue( MaxAmp_x2 * (805 - cur.y) / 250 ) );
@@ -875,7 +872,6 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 	   				m1_x2 = true;
 	   				m1_x2_x = cur.x;
 	   				m1_x2_y = cur.y;
-	   				CreateMarker(3);
 				}
 				else
 				{
@@ -883,7 +879,7 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 	   				SetWindowText( x2_czas_marker1, (LPSTR) "--------" );
 	   				m1_x2 = false;
 				}
-				ZmienDelte();
+				InvalidateRect(hwnd2, NULL, false);
 				UpdateWindow(hwnd2);
 			}
 			else
@@ -920,7 +916,6 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 			
 			if( PtInRegion( hRgn, cur.x, cur.y) )
 			{
-				DeleteMarker(2);
 	    		if (pixel_wykres)
 	    		{
 	   				SetWindowText( x1_amp_marker2, GetAmpValue( MaxAmp_x1 * (266 - cur.y) / 250) );
@@ -928,7 +923,6 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 	   				m2_x1 = true;
 	   				m2_x1_x = cur.x;
 	   				m2_x1_y = cur.y;
-					CreateMarker(2);
 				}
 				else
 				{
@@ -936,12 +930,11 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 	   				SetWindowText( x1_czas_marker2, (LPSTR) "--------" );
 	   				m2_x1 = false;
 				}
-				ZmienDelte();
+				InvalidateRect(hwnd2, NULL, false);
 				UpdateWindow(hwnd2);
 			}
 			else if( PtInRegion( hRgn2, cur.x, cur.y) )
 			{
-				DeleteMarker(4);
 	    		if (pixel_wykres)
 	    		{
 	   				SetWindowText( x2_amp_marker2, GetAmpValue( MaxAmp_x2 * (805 - cur.y) / 250) );
@@ -949,7 +942,6 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 	   				m2_x2 = true;
 	   				m2_x2_x = cur.x;
 	   				m2_x2_y = cur.y;
-	   				CreateMarker(4);
 				}
 				else
 				{
@@ -957,7 +949,7 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 	   				SetWindowText( x2_czas_marker2, (LPSTR) "--------" );
 	   				m2_x2 = false;
 				}
-				ZmienDelte();
+				InvalidateRect(hwnd2, NULL, false);
 				UpdateWindow(hwnd2);
 			}
 			else
@@ -1392,113 +1384,7 @@ void ZmienDelte()
 	}
 }
 
-void DeleteMarker(int marker_id)
-{
-	
-	HDC hdcOkno = GetDC(hwnd2);
-	HPEN GreenPen = CreatePen( PS_SOLID, 1, 0x00FF00 );
-	HPEN RedPen = CreatePen( PS_SOLID, 1, 0x0000FF );
-	HPEN WhitePen = CreatePen( PS_SOLID, 1, 0xFFFFFF );
-	POINT stary_punkt;
-	
-	switch(marker_id)
-	{
-		//--------Marker 1 dla x1---------
-		case 1: {
-			if(m2_x1 == true && m1_x1_y == m2_x1_y)
-				SelectObject(hdcOkno, RedPen);
-			else
-				SelectObject(hdcOkno, WhitePen);								
-			MoveToEx(hdcOkno, 135, m1_x1_y, &stary_punkt);
-			LineTo(hdcOkno, 150, m1_x1_y);
-			MoveToEx(hdcOkno, 1152, m1_x1_y, &stary_punkt);
-			LineTo(hdcOkno, 1167, m1_x1_y);
-			
-			if(m2_x1 == true && m1_x1_x == m2_x1_x)
-				SelectObject(hdcOkno, RedPen);
-			else
-				SelectObject(hdcOkno, WhitePen);								
-			MoveToEx(hdcOkno, m1_x1_x, 0, &stary_punkt);
-			LineTo(hdcOkno, m1_x1_x, 15);
-			MoveToEx(hdcOkno, m1_x1_x, 516, &stary_punkt);
-			LineTo(hdcOkno, m1_x1_x, 531);
-			break;
-		}
-		//--------Marker 2 dla x1---------
-		case 2: {	
-			if(m1_x1 == true && m1_x1_y == m2_x1_y)
-				SelectObject(hdcOkno, GreenPen);
-			else
-				SelectObject(hdcOkno, WhitePen);								
-			MoveToEx(hdcOkno, 135, m2_x1_y, &stary_punkt);
-			LineTo(hdcOkno, 150, m2_x1_y);
-			MoveToEx(hdcOkno, 1152, m2_x1_y, &stary_punkt);
-			LineTo(hdcOkno, 1167, m2_x1_y);
-			
-			if(m1_x1 == true && m1_x1_x == m2_x1_x)
-				SelectObject(hdcOkno, GreenPen);
-			else
-				SelectObject(hdcOkno, WhitePen);								
-			MoveToEx(hdcOkno, m2_x1_x, 0, &stary_punkt);
-			LineTo(hdcOkno, m2_x1_x, 15);
-			MoveToEx(hdcOkno, m2_x1_x, 516, &stary_punkt);
-			LineTo(hdcOkno, m2_x1_x, 531);
-			break;
-		}
-		//--------Marker 1 dla x2---------
-		case 3: {
-			if(m2_x2 == true && m1_x2_y == m2_x2_y)
-				SelectObject(hdcOkno, RedPen);
-			else
-				SelectObject(hdcOkno, WhitePen);								
-			MoveToEx(hdcOkno, 135, m1_x2_y, &stary_punkt);
-			LineTo(hdcOkno, 150, m1_x2_y);
-			MoveToEx(hdcOkno, 1152, m1_x2_y, &stary_punkt);
-			LineTo(hdcOkno, 1167, m1_x2_y);
-			
-			if(m2_x2 == true && m1_x2_x == m2_x2_x)
-				SelectObject(hdcOkno, RedPen);
-			else
-				SelectObject(hdcOkno, WhitePen);					
-			MoveToEx(hdcOkno, m1_x2_x, 539, &stary_punkt);
-			LineTo(hdcOkno, m1_x2_x, 554);
-			MoveToEx(hdcOkno, m1_x2_x, 1055, &stary_punkt);
-			LineTo(hdcOkno, m1_x2_x, 1070);
-			break;
-		}
-		//--------Marker 2 dla x2---------
-		case 4: {	
-			if(m1_x2 == true && m1_x2_y == m2_x2_y)
-				SelectObject(hdcOkno, GreenPen);
-			else
-				SelectObject(hdcOkno, WhitePen);								
-			MoveToEx(hdcOkno, 135, m2_x2_y, &stary_punkt);
-			LineTo(hdcOkno, 150, m2_x2_y);
-			MoveToEx(hdcOkno, 1152, m2_x2_y, &stary_punkt);
-			LineTo(hdcOkno, 1167, m2_x2_y);
-			
-			if(m1_x2 == true && m1_x2_x == m2_x2_x)
-				SelectObject(hdcOkno, GreenPen);
-			else
-				SelectObject(hdcOkno, WhitePen);					
-			MoveToEx(hdcOkno, m2_x2_x, 539, &stary_punkt);
-			LineTo(hdcOkno, m2_x2_x, 554);
-			MoveToEx(hdcOkno, m2_x2_x, 1055, &stary_punkt);
-			LineTo(hdcOkno, m2_x2_x, 1070);
-			break;
-		}
-	}
-	
-	SelectObject(hdcOkno, GreenPen);
-	DeleteObject(GreenPen);
-	SelectObject(hdcOkno, RedPen);
-	DeleteObject(RedPen);
-	SelectObject(hdcOkno, WhitePen);
-	DeleteObject(WhitePen);
-	ReleaseDC(hwnd2, hdcOkno);
-}
-
-void CreateMarker(int marker_id)
+void DrawMarkers()
 {
 	HDC hdcOkno = GetDC(hwnd2);
 	HPEN GreenPen = CreatePen( PS_SOLID, 1, 0x00FF00 );
@@ -1506,105 +1392,78 @@ void CreateMarker(int marker_id)
 	HPEN YellowPen = CreatePen( PS_SOLID, 1, 0x00FFFF ); 
 	POINT stary_punkt;
 	
-	switch(marker_id)
-	{
+
 		//--------Marker 1 dla x1---------
-		case 1: {
-			if(m1_x1 == true)
-			{
+		if(m1_x1 == true)
+		{
 				if(m2_x1 == true && m1_x1_y == m2_x1_y)
 					SelectObject(hdcOkno, YellowPen);
 				else
 					SelectObject(hdcOkno, GreenPen);								
-				MoveToEx(hdcOkno, 135, m1_x1_y, &stary_punkt);
-				LineTo(hdcOkno, 150, m1_x1_y);
-				MoveToEx(hdcOkno, 1152, m1_x1_y, &stary_punkt);
-				LineTo(hdcOkno, 1167, m1_x1_y);
+				MoveToEx(hdcOkno, 150, m1_x1_y, &stary_punkt);
+				LineTo(hdcOkno, 1152, m1_x1_y);
 				
 				if(m2_x1 == true && m1_x1_x == m2_x1_x)
 					SelectObject(hdcOkno, YellowPen);
 				else
 					SelectObject(hdcOkno, GreenPen);					
-				MoveToEx(hdcOkno, m1_x1_x, 0, &stary_punkt);
-				LineTo(hdcOkno, m1_x1_x, 15);
-				MoveToEx(hdcOkno, m1_x1_x, 516, &stary_punkt);
-				LineTo(hdcOkno, m1_x1_x, 531);
-			}
-			break;
+				MoveToEx(hdcOkno, m1_x1_x, 15, &stary_punkt);
+				LineTo(hdcOkno, m1_x1_x, 516);
 		}
+		
 		//--------Marker 2 dla x1---------
-		case 2: {	
-			if(m2_x1 == true)
-			{
-				if(m1_x1 == true && m1_x1_y == m2_x1_y)
-					SelectObject(hdcOkno, YellowPen);
-				else
-					SelectObject(hdcOkno, RedPen);								
-				MoveToEx(hdcOkno, 135, m2_x1_y, &stary_punkt);
-				LineTo(hdcOkno, 150, m2_x1_y);
-				MoveToEx(hdcOkno, 1152, m2_x1_y, &stary_punkt);
-				LineTo(hdcOkno, 1167, m2_x1_y);
-				
-				if(m1_x1 == true && m1_x1_x == m2_x1_x)
-					SelectObject(hdcOkno, YellowPen);
-				else
-					SelectObject(hdcOkno, RedPen);					
-				MoveToEx(hdcOkno, m2_x1_x, 0, &stary_punkt);
-				LineTo(hdcOkno, m2_x1_x, 15);
-				MoveToEx(hdcOkno, m2_x1_x, 516, &stary_punkt);
-				LineTo(hdcOkno, m2_x1_x, 531);
-			}
-			break;
+	
+		if(m2_x1 == true)
+		{
+			if(m1_x1 == true && m1_x1_y == m2_x1_y)
+				SelectObject(hdcOkno, YellowPen);
+			else
+				SelectObject(hdcOkno, RedPen);								
+			MoveToEx(hdcOkno, 150, m2_x1_y, &stary_punkt);
+			LineTo(hdcOkno, 1152, m2_x1_y);
+			
+			if(m1_x1 == true && m1_x1_x == m2_x1_x)
+				SelectObject(hdcOkno, YellowPen);
+			else
+				SelectObject(hdcOkno, RedPen);					
+			MoveToEx(hdcOkno, m2_x1_x, 15, &stary_punkt);
+			LineTo(hdcOkno, m2_x1_x, 516);
 		}
+
 		//--------Marker 1 dla x2---------
-		case 3: {
-			if(m1_x2 == true)
-			{
+		if(m1_x2 == true)
+		{
 				if(m2_x2 == true && m1_x2_y == m2_x2_y)
 					SelectObject(hdcOkno, YellowPen);
 				else
 					SelectObject(hdcOkno, GreenPen);								
-				MoveToEx(hdcOkno, 135, m1_x2_y, &stary_punkt);
-				LineTo(hdcOkno, 150, m1_x2_y);
-				MoveToEx(hdcOkno, 1152, m1_x2_y, &stary_punkt);
-				LineTo(hdcOkno, 1167, m1_x2_y);
+				MoveToEx(hdcOkno, 150, m1_x2_y, &stary_punkt);
+				LineTo(hdcOkno, 1152, m1_x2_y);
 				
 				if(m2_x2 == true && m1_x2_x == m2_x2_x)
 					SelectObject(hdcOkno, YellowPen);
 				else
 					SelectObject(hdcOkno, GreenPen);					
-				MoveToEx(hdcOkno, m1_x2_x, 539, &stary_punkt);
-				LineTo(hdcOkno, m1_x2_x, 554);
-				MoveToEx(hdcOkno, m1_x2_x, 1055, &stary_punkt);
-				LineTo(hdcOkno, m1_x2_x, 1070);
-			}
-			break;
+				MoveToEx(hdcOkno, m1_x2_x, 554, &stary_punkt);
+				LineTo(hdcOkno, m1_x2_x, 1065);
 		}
-		//--------Marker 2 dla x2---------
-		case 4: {	
-			if(m2_x2 == true)
-			{
-				if(m1_x2 == true && m1_x2_y == m2_x2_y)
-					SelectObject(hdcOkno, YellowPen);
-				else
-					SelectObject(hdcOkno, RedPen);								
-				MoveToEx(hdcOkno, 135, m2_x2_y, &stary_punkt);
-				LineTo(hdcOkno, 150, m2_x2_y);
-				MoveToEx(hdcOkno, 1152, m2_x2_y, &stary_punkt);
-				LineTo(hdcOkno, 1167, m2_x2_y);
-				
-				if(m1_x2 == true && m1_x2_x == m2_x2_x)
-					SelectObject(hdcOkno, YellowPen);
-				else
-					SelectObject(hdcOkno, RedPen);					
-				MoveToEx(hdcOkno, m2_x2_x, 539, &stary_punkt);
-				LineTo(hdcOkno, m2_x2_x, 554);
-				MoveToEx(hdcOkno, m2_x2_x, 1055, &stary_punkt);
-				LineTo(hdcOkno, m2_x2_x, 1070);
-			}
-			break;
+		//--------Marker 2 dla x2---------	
+		if(m2_x2 == true)
+		{
+			if(m1_x2 == true && m1_x2_y == m2_x2_y)
+				SelectObject(hdcOkno, YellowPen);
+			else
+				SelectObject(hdcOkno, RedPen);								
+			MoveToEx(hdcOkno, 150, m2_x2_y, &stary_punkt);
+			LineTo(hdcOkno, 1152, m2_x2_y);
+			
+			if(m1_x2 == true && m1_x2_x == m2_x2_x)
+				SelectObject(hdcOkno, YellowPen);
+			else
+				SelectObject(hdcOkno, RedPen);					
+			MoveToEx(hdcOkno, m2_x2_x, 554, &stary_punkt);
+			LineTo(hdcOkno, m2_x2_x, 1065);
 		}
-	}
 	
 	SelectObject(hdcOkno, GreenPen);
 	DeleteObject(GreenPen);
@@ -1622,10 +1481,6 @@ void ZerujMarkery()
 	m2_x1 = false;
 	m1_x2 = false;
 	m2_x2 = false;
-	DeleteMarker(1);
-	DeleteMarker(2);
-	DeleteMarker(3);
-	DeleteMarker(4);
 	SetWindowText( x1_amp_marker1, (LPSTR) "--------" );
 	SetWindowText( x1_czas_marker1, (LPSTR) "--------" );
 	SetWindowText( x1_amp_marker2, (LPSTR) "--------" );
