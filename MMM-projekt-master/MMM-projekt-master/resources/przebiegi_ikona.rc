@@ -1,0 +1,3 @@
+#include "przebiegi_ikona.h"
+
+ID_PICON ICON "pictures/przebiegi_ikona.ico"
