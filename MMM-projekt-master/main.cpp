@@ -216,7 +216,7 @@ int WINAPI WinMain(HINSTANCE hInstance = hInstance, HINSTANCE hPrevInstance, LPS
 
 //----------------------------Funkcje obslugi komunikatow------------------------------
 
-//-------Funkjca okna g³ównego-------------
+//-------Funkjca okna gÂ³Ã³wnego-------------
 /* This is where all the input to the window goes to */
 LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) {
 	switch(Message) {
@@ -227,7 +227,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			break;
 		}
 		
-		//--------Ustawianie bitmapy jako t³o--------------
+		//--------Ustawianie bitmapy jako tÂ³o--------------
 		case WM_PAINT: {
 			HBITMAP hbmObraz;
 			hbmObraz =( HBITMAP ) LoadImage( NULL, "pictures/obwod.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE );
@@ -297,7 +297,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 				hwnd, ( HMENU ) NULL, hInstance, NULL );
 				
 			SendMessage( U_combo, CB_ADDSTRING, 0,( LPARAM ) "Skok" );
-			SendMessage( U_combo, CB_ADDSTRING, 0,( LPARAM ) "Fala Prostok¹tna" );
+			SendMessage( U_combo, CB_ADDSTRING, 0,( LPARAM ) "Fala ProstokÂ¹tna" );
 			SendMessage( U_combo, CB_ADDSTRING, 0,( LPARAM ) "Sinusoida" );
 			SendMessage(U_combo, CB_SETCURSEL, 0, (LPARAM) 0);
 			
@@ -320,7 +320,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			SetWindowText( Freq_value, (LPSTR) "---" );
 			
 			//------------Przebiegi------------------
-			Przebiegi_button = CreateWindowEx(0, "BUTTON", "Rysuj przebiegi sygna³ów", WS_CHILD | WS_VISIBLE,
+			Przebiegi_button = CreateWindowEx(0, "BUTTON", "Rysuj przebiegi sygnaÂ³Ã³w", WS_CHILD | WS_VISIBLE,
 				70,
 				450,
 				200,
@@ -398,7 +398,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 			    			    
 			    case ID_Przebiegi: {
 					DestroyWindow(hwnd2);
-					hwnd2 = CreateWindowEx(WS_EX_CLIENTEDGE,"WindowClassChild","Przebiegi sygna³ów",WS_POPUP|WS_OVERLAPPEDWINDOW|WS_VSCROLL,
+					hwnd2 = CreateWindowEx(WS_EX_CLIENTEDGE,"WindowClassChild","Przebiegi sygnaÂ³Ã³w",WS_POPUP|WS_OVERLAPPEDWINDOW|WS_VSCROLL,
 						CW_USEDEFAULT, /* x */
 						CW_USEDEFAULT, /* y */
 						1250, /* width */
@@ -450,7 +450,7 @@ LRESULT CALLBACK WndProcChild(HWND hwnd2, UINT Message, WPARAM wParam, LPARAM lP
 			break;
 		}
 		
-		//-----------------Ustawianie t³a-----------------------
+		//-----------------Ustawianie tÂ³a-----------------------
 		case WM_PAINT: {
 			HBITMAP hbmObraz1;
 			hbmObraz1 =( HBITMAP ) LoadImage( NULL, "pictures/wykres_x1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE );
@@ -1032,12 +1032,12 @@ LRESULT CALLBACK WndProcInput(HWND hwnd3, UINT Message, WPARAM wParam, LPARAM lP
 			break;
 		}
 		
-		//---Wybor treœci kontrolek w zale¿noœci od naciœniêtego przycisku w oknie g³ównym---
+		//---Wybor treÂœci kontrolek w zaleÂ¿noÂœci od naciÂœniÃªtego przycisku w oknie gÂ³Ã³wnym---
 		case WM_CREATE: {
 			switch(input_typ)
 			{
 				case 1:{
-					Input_static = CreateWindowEx( 0, "STATIC", "Zmieñ rezystancjê R1", WS_CHILD | WS_VISIBLE | SS_CENTER,
+					Input_static = CreateWindowEx( 0, "STATIC", "ZmieÃ± rezystancjÃª R1", WS_CHILD | WS_VISIBLE | SS_CENTER,
 					50, /* x */
 					20, /* y */
 					300, /* width */
@@ -1055,7 +1055,7 @@ LRESULT CALLBACK WndProcInput(HWND hwnd3, UINT Message, WPARAM wParam, LPARAM lP
 					break;
 				}
 				case 2:{
-					Input_static = CreateWindowEx( 0, "STATIC", "Zmieñ rezystancjê R2", WS_CHILD | WS_VISIBLE | SS_CENTER,
+					Input_static = CreateWindowEx( 0, "STATIC", "ZmieÃ± rezystancjÃª R2", WS_CHILD | WS_VISIBLE | SS_CENTER,
 					50, /* x */
 					20, /* y */
 					300, /* width */
@@ -1074,7 +1074,7 @@ LRESULT CALLBACK WndProcInput(HWND hwnd3, UINT Message, WPARAM wParam, LPARAM lP
 					break;
 				}
 				case 3:{
-					Input_static = CreateWindowEx( 0, "STATIC", "Zmieñ pojemnoœæ C1", WS_CHILD | WS_VISIBLE | SS_CENTER,
+					Input_static = CreateWindowEx( 0, "STATIC", "ZmieÃ± pojemnoÂœÃ¦ C1", WS_CHILD | WS_VISIBLE | SS_CENTER,
 					50, /* x */
 					20, /* y */
 					300, /* width */
@@ -1092,7 +1092,7 @@ LRESULT CALLBACK WndProcInput(HWND hwnd3, UINT Message, WPARAM wParam, LPARAM lP
 					break;
 				}
 				case 4:{
-					Input_static = CreateWindowEx( 0, "STATIC", "Zmieñ pojemnoœæ C2", WS_CHILD | WS_VISIBLE | SS_CENTER,
+					Input_static = CreateWindowEx( 0, "STATIC", "ZmieÃ± pojemnoÂœÃ¦ C2", WS_CHILD | WS_VISIBLE | SS_CENTER,
 					50, /* x */
 					20, /* y */
 					300, /* width */
@@ -1110,7 +1110,7 @@ LRESULT CALLBACK WndProcInput(HWND hwnd3, UINT Message, WPARAM wParam, LPARAM lP
 					break;
 				}
 				case 5:{
-					Input_static = CreateWindowEx( 0, "STATIC", "Zmieñ 2amplitudê sygna³u", WS_CHILD | WS_VISIBLE | SS_CENTER,
+					Input_static = CreateWindowEx( 0, "STATIC", "ZmieÃ± 2amplitudÃª sygnaÂ³u", WS_CHILD | WS_VISIBLE | SS_CENTER,
 					50, /* x */
 					20, /* y */
 					300, /* width */
@@ -1128,7 +1128,7 @@ LRESULT CALLBACK WndProcInput(HWND hwnd3, UINT Message, WPARAM wParam, LPARAM lP
 					break;
 				}
 				case 6:{
-					Input_static = CreateWindowEx( 0, "STATIC", "Zmieñ czêstotliwoœæ sygna³u", WS_CHILD | WS_VISIBLE | SS_CENTER,
+					Input_static = CreateWindowEx( 0, "STATIC", "ZmieÃ± czÃªstotliwoÂœÃ¦ sygnaÂ³u", WS_CHILD | WS_VISIBLE | SS_CENTER,
 					50, /* x */
 					20, /* y */
 					300, /* width */
@@ -1146,7 +1146,7 @@ LRESULT CALLBACK WndProcInput(HWND hwnd3, UINT Message, WPARAM wParam, LPARAM lP
 					break;
 				}
 				case 7:{
-					Input_static = CreateWindowEx( 0, "STATIC", "Zmieñ czas symulacji", WS_CHILD | WS_VISIBLE | SS_CENTER,
+					Input_static = CreateWindowEx( 0, "STATIC", "ZmieÃ± czas symulacji", WS_CHILD | WS_VISIBLE | SS_CENTER,
 					50, /* x */
 					20, /* y */
 					300, /* width */
@@ -1224,7 +1224,7 @@ LRESULT CALLBACK WndProcInput(HWND hwnd3, UINT Message, WPARAM wParam, LPARAM lP
 						DestroyWindow(hwnd3);
 					}
 					else
-						MessageBox( hwnd, "Podaj liczbê z zakresu <1e-12; 1e15>", NULL, MB_ICONINFORMATION );
+						MessageBox( hwnd, "Podaj liczbÃª z zakresu <1e-12; 1e15>", NULL, MB_ICONINFORMATION );
 					switch(input_typ)
 					{
 						case 1:
@@ -1619,7 +1619,7 @@ double GetNumberAmp(LPSTR text1)
 }
 
 //Funkcja zamieniajaca liczbe double na typ LPSTR, ktory mozna wyswietlac w kontrolkach
-//Liczba wyœwietlana jest z zakresu <1;999> z dodatkowym przedrostkiem, jesli jest potrzebny
+//Liczba wyÂœwietlana jest z zakresu <1;999> z dodatkowym przedrostkiem, jesli jest potrzebny
 //Obsluguje liczby z zakresy <1e-12;1e15>
 LPSTR GetValue(double liczba, char typ, bool zero_acceptable)
 {
@@ -1959,7 +1959,6 @@ void GraphCalculations()
 		}
 	}	
 	
-	//Nie ruszaæ mi tego!
 	SetWindowText( simulation_time, GetValue(czas_symulacji, 't', 0) );
 	
 	MaxAmp_x1 = GetMaxAmp(MaxAmp_x1);
